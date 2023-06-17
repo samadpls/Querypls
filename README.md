@@ -1,1 +1,25 @@
-# Querypls
+# Querypls - SQL Query Provider 🗄
+
+Querypls is a simple web application built with Streamlit that acts as an SQL query provider. It allows users to enter SQL queries and receive query results as responses. The application uses the power of language models provided by Hugging Face to generate SQL queries based on user input.
+
+## Key Features
+
+🔍 Enter SQL queries and receive query results as responses.
+🤖 Uses language models from Hugging Face for generating SQL queries.
+💻 User-friendly interface for easy interaction.
+
+## Usage
+
+To use Querypls, visit the website [here](https://querypls.streamlit.app/).
+
+## Improving Query Generation
+
+If you have expertise in improving the prompt or generating more accurate SQL queries, your contribution in enhancing the language model would be highly appreciated. Feel free to experiment and suggest changes to the prompt template in order to achieve better query generation.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+---
+
+`Made with 🤍 by samadpls`
