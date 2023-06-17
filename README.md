@@ -1,5 +1,5 @@
 
-![header](https://github.com/samadpls/Querypls/assets/94792103/277dc67c-8364-44fd-9968-1fa3a8aae003)
+<img src="https://github.com/samadpls/Querypls/assets/94792103/525bb160-1fdd-4316-b678-d9a7d86d2d3a">
 
 # Querypls - SQL Query Provider 🗄
 
