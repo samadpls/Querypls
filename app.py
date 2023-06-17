@@ -9,7 +9,7 @@ llm = HuggingFaceHub(huggingfacehub_api_token=huggingfacehub_api_token,
                      repo_id=repo_id,
                      model_kwargs={"temperature":0.6, "max_new_tokens":180})
 
-template = st.secrets['prompt']+"""{question}"""
+template = st.secrets['prompt']
 def main():
     with open('styles.css') as f:
         st.markdown(f"<style>{f.read()}</style>",unsafe_allow_html=True)
@@ -28,7 +28,7 @@ def main():
     if st.button("Run"):
         response = llm_chain.run(question)
         st.markdown("### Response:")
-        styled_responses = response.replace("</code></pre>", "").replace("<pre><code>", "")
+        styled_responses = response.replace("</code>", "").replace("<code>", "").replace("<pre>","").replace("</pre>","")
         # styled_response = f'<div style="color: white; background-color: #666666; padding: 10px; border-radius: 10px;">{styled_responses}</div>'
         st.markdown(styled_responses)
 
