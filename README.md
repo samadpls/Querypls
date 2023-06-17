@@ -1,3 +1,6 @@
+
+
+
 # Querypls - SQL Query Provider 🗄
 
 Querypls is a simple web application built with Streamlit that acts as an SQL query provider. It allows users to enter SQL queries and receive query results as responses. The application uses the power of language models provided by Hugging Face to generate SQL queries based on user input.
@@ -11,6 +14,11 @@ Querypls is a simple web application built with Streamlit that acts as an SQL qu
 ## Usage
 
 To use Querypls, visit the website [here](https://querypls.streamlit.app/).
+
+
+https://github.com/samadpls/Querypls/assets/94792103/43f5dfa6-0bc0-46db-b9d3-e210dab09d5d
+
+
 
 ## Improving Query Generation
 
