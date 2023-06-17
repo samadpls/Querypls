@@ -3,16 +3,13 @@ from langchain import PromptTemplate, LLMChain
 import os
 from langchain import HuggingFaceHub
 
-huggingfacehub_api_token ='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'
+huggingfacehub_api_token =st.secrets['key']
 repo_id = "tiiuae/falcon-7b-instruct"
 llm = HuggingFaceHub(huggingfacehub_api_token=huggingfacehub_api_token,
                      repo_id=repo_id,
-                     model_kwargs={"temperature":0.6, "max_new_tokens":150})
-template = """
-You are samadpls SQL provider. I want you act as a SQL terminal in front of an example database. You can type queries, and I will reply with what the terminal would show. My responses will be in the form of a table of query results, enclosed in a single code block, and without any explanations. I will not type commands unless instructed to do so. When you need to provide instructions or information in English, please use curly braces {{like this}}.
+                     model_kwargs={"temperature":0.6, "max_new_tokens":180})
 
-{question}
-"""
+template = st.secrets['prompt']+"""{question}"""
 def main():
     with open('styles.css') as f:
         st.markdown(f"<style>{f.read()}</style>",unsafe_allow_html=True)
