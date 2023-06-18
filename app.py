@@ -17,7 +17,7 @@ st.set_page_config(page_title="Querypls",
 def main():
     with open('styles.css') as f:
         st.markdown(f"<style>{f.read()}</style>",unsafe_allow_html=True)
-    st.markdown("""<a href='https://github.com/samadpls/yt-clickbait-detector'><img src='https://img.shields.io/github/stars/samadpls/querypls?color=red&label=star%20me&logoColor=red&style=social'></a>""",unsafe_allow_html=True) 
+    st.markdown("""<a href='https://github.com/samadpls/Querypls'><img src='https://img.shields.io/github/stars/samadpls/querypls?color=red&label=star%20me&logoColor=red&style=social'></a>""",unsafe_allow_html=True) 
     img , heading =  st.columns([1,8]) # using columns to display the heading and image
     with img:
         st.image("logo/logo.png",width=70) # logo
@@ -28,7 +28,7 @@ def main():
     prompt = PromptTemplate(template=template, input_variables=["question"])
     llm_chain = LLMChain(prompt=prompt, llm=llm)
 
-    question = st.text_area("Enter your SQL query:")
+    question = st.text_area("Please enter a prompt to generate a SQL query:")
 
     try:
         if st.button("Run"):
