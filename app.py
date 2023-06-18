@@ -17,6 +17,7 @@ st.set_page_config(page_title="Querypls",
 def main():
     with open('styles.css') as f:
         st.markdown(f"<style>{f.read()}</style>",unsafe_allow_html=True)
+    st.markdown("""<a href='https://github.com/samadpls/yt-clickbait-detector'><img src='https://img.shields.io/github/stars/samadpls/querypls?color=red&label=star%20me&logoColor=red&style=social'></a>""",unsafe_allow_html=True) 
     img , heading =  st.columns([1,8]) # using columns to display the heading and image
     with img:
         st.image("logo/logo.png",width=70) # logo
@@ -36,7 +37,7 @@ def main():
                 response = llm_chain.run(question)
                 st.markdown("### Response:")
                 cleaned_response = re.sub(r"<\/?code>|<\/?pre>", "", response)
-                st.code(cleaned_response)
+                st.markdown(cleaned_response,unsafe_allow_html=True)
             else:
                 st.success("Hi there! I'm Querypls, created by Abdul Samad Siddiqui. How can I assist you with your SQL queries?")
     except Exception as e:
