@@ -28,7 +28,7 @@ def main():
     prompt = PromptTemplate(template=template, input_variables=["question"])
     llm_chain = LLMChain(prompt=prompt, llm=llm)
 
-    question = st.text_area("Enter your SQL query:")
+    question = st.text_area("Please enter a prompt to generate a SQL query:")
 
     try:
         if st.button("Run"):
