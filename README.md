@@ -28,7 +28,7 @@ https://github.com/samadpls/Querypls/assets/94792103/e8fd1192-aa75-41c9-a680-f4e
 ## Improving Query Generation
 
 If you have expertise in improving the prompt or generating more accurate SQL queries, your contribution in enhancing the language model would be highly appreciated. Feel free to experiment and suggest changes to the prompt template in order to achieve better query generation.
-
+<a target="_blank" href="https://colab.research.google.com/github/samadpls/Querypls/blob/main/Querypls.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
