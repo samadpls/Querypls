@@ -10,6 +10,10 @@ llm = HuggingFaceHub(huggingfacehub_api_token=huggingfacehub_api_token,
                      model_kwargs={"temperature":0.6, "max_new_tokens":180})
 
 template = st.secrets['prompt']
+st.set_page_config(page_title="Querypls",
+                   page_icon="./logo/logo.png",
+                   layout="centered",
+                   initial_sidebar_state="auto") 
 def main():
     with open('styles.css') as f:
         st.markdown(f"<style>{f.read()}</style>",unsafe_allow_html=True)
@@ -18,22 +22,28 @@ def main():
         st.image("logo/logo.png",width=70) # logo
     with heading:
         st.title('Querypls - SQL Query Provider')  # heading
-
+    
 
     prompt = PromptTemplate(template=template, input_variables=["question"])
     llm_chain = LLMChain(prompt=prompt, llm=llm)
 
     question = st.text_area("Enter your SQL query:")
-    
-    if st.button("Run"):
-        response = llm_chain.run(question)
-        st.markdown("### Response:")
-        styled_responses = response.replace("</code>", "").replace("<code>", "").replace("<pre>","").replace("</pre>","")
-        # styled_response = f'<div style="color: white; background-color: #666666; padding: 10px; border-radius: 10px;">{styled_responses}</div>'
-        st.markdown(styled_responses)
+
+    try:
+        if st.button("Run"):
+            if question.strip():  # Check if the question is not empty
+                import re
+                response = llm_chain.run(question)
+                st.markdown("### Response:")
+                cleaned_response = re.sub(r"<\/?code>|<\/?pre>", "", response)
+                st.code(cleaned_response, unsafe_allow_html=True)
+            else:
+                st.success("Hi there! I'm Querypls, created by Abdul Samad Siddiqui. How can I assist you with your SQL queries?")
+    except Exception as e:
+        st.error(f"An error occurred: {str(e)}")
+
 
     st.markdown('`Made with 🤍 by samadpls`')   
 
 if __name__ == "__main__":
-    st.set_page_config(page_title="Querypls",page_icon="./logo/logo.png",layout="centered",initial_sidebar_state="auto") 
     main()
