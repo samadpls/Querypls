@@ -35,7 +35,8 @@ def main():
                 import re
                 response = llm_chain.run(question)
                 st.markdown("### Response:")
-                st.markdown(response,unsafe_allow_html=True)
+                cleaned_response = re.sub(r"<\/?code>|<\/?pre>", "", response)
+                st.code(cleaned_response, unsafe_allow_html=True)
             else:
                 st.success("Hi there! I'm Querypls, created by Abdul Samad Siddiqui. How can I assist you with your SQL queries?")
     except Exception as e:
