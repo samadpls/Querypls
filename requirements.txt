@@ -1,3 +1,2 @@
-langchain==0.0.202
 streamlit==1.23.1
 huggingface_hub==0.15.1
