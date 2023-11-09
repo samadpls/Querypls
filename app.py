@@ -1,50 +1,55 @@
 import streamlit as st
-from langchain import PromptTemplate, LLMChain
-import os
-from langchain import HuggingFaceHub
+from auth import *
 
-huggingfacehub_api_token =st.secrets['key']
-repo_id = "tiiuae/falcon-7b-instruct"
-llm = HuggingFaceHub(huggingfacehub_api_token=huggingfacehub_api_token,
-                     repo_id=repo_id,
-                     model_kwargs={"temperature":0.6, "max_new_tokens":180})
 
-template = st.secrets['prompt']
-st.set_page_config(page_title="Querypls",
-                   page_icon="./logo/logo.png",
-                   layout="centered",
-                   initial_sidebar_state="auto") 
-def main():
-    with open('styles.css') as f:
-        st.markdown(f"<style>{f.read()}</style>",unsafe_allow_html=True)
-    st.markdown("""<a href='https://github.com/samadpls/Querypls'><img src='https://img.shields.io/github/stars/samadpls/querypls?color=red&label=star%20me&logoColor=red&style=social'></a>""",unsafe_allow_html=True) 
-    img , heading =  st.columns([1,8]) # using columns to display the heading and image
-    with img:
-        st.image("logo/logo.png",width=70) # logo
-    with heading:
-        st.title('Querypls - SQL Query Provider')  # heading
+st.set_page_config(page_title="Querypls")
+# hiding made with streamlit logo
+hide_streamlit_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
+
+
+with st.sidebar:
+    st.title('Querypls')
+    code = st.experimental_get_query_params().get('code', None)
     
-
-    prompt = PromptTemplate(template=template, input_variables=["question"])
-    llm_chain = LLMChain(prompt=prompt, llm=llm)
-
-    question = st.text_area("Please enter a prompt to generate a SQL query:")
-
-    try:
-        if st.button("Run"):
-            if question.strip():  # Check if the question is not empty
-                import re
-                response = llm_chain.run(question)
-                st.markdown("### Response:")
-                cleaned_response = re.sub(r"<\/?code>|<\/?pre>", "", response)
-                st.markdown(cleaned_response,unsafe_allow_html=True)
-            else:
-                st.success("Hi there! I'm Querypls, created by Abdul Samad Siddiqui. How can I assist you with your SQL queries?")
-    except Exception as e:
-        st.error(f"An error occurred: {str(e)}")
+    if code:
+        client: GoogleOAuth2 = GoogleOAuth2(CLIENT_ID, CLIENT_SECRET)
+        token = asyncio.run(get_access_token(client, REDIRECT_URI, code))
+        user_id, user_email = asyncio.run(get_email(client, token['access_token']))
+        st.success('Google Login credentials already provided!', icon='✅')
+        st.write("User ID:", user_id)
+        st.write("User Email:", user_email)
+    else:
+        st.write(get_login_str(), unsafe_allow_html=True)
+    print("\n"*5,code)
 
 
-    st.markdown('`Made with 🤍 by samadpls`')   
 
-if __name__ == "__main__":
-    main()
+    
+# Store LLM generated responses
+if "messages" not in st.session_state.keys():
+    st.session_state.messages = [{"role": "assistant", "content": "How may I help you?"}]
+
+# Display chat messages
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.write(message["content"])
+
+# User-provided prompt
+if prompt := st.chat_input(disabled=(code is None)):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.write(prompt)
+
+# Generate a new response if last message is not from assistant
+if st.session_state.messages[-1]["role"] != "assistant":
+    with st.chat_message("assistant"):
+        with st.spinner("Thinking..."):
+           st.write("response") 
+    message = {"role": "assistant", "content": "response"}
+    st.session_state.messages.append(message)
