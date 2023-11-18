@@ -1,10 +1,8 @@
-import streamlit as st
 import asyncio
+from src.constant import * 
 from httpx_oauth.clients.google import GoogleOAuth2
 
-CLIENT_ID = "386097294295-cshguegcn7krddrt1mok2srpsqej1d58.apps.googleusercontent.com"
-CLIENT_SECRET = "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"
-REDIRECT_URI = "http://localhost:8501/"
+
 
 
 async def get_authorization_url(client: GoogleOAuth2, redirect_uri: str):
