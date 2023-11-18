@@ -1,7 +1,7 @@
 streamlit==1.28.0
 huggingface_hub==0.15.1
 asyncio==3.4.3
-httpx_oauth==0.13.1
+httpx_oauth>=0.13.1
 streamlit==1.28.0
 langchain==0.0.336
 deta==1.2.0
