@@ -1,8 +1,6 @@
 import asyncio
-from src.constant import * 
+from src.constant import *
 from httpx_oauth.clients.google import GoogleOAuth2
-
-
 
 
 async def get_authorization_url(client: GoogleOAuth2, redirect_uri: str):

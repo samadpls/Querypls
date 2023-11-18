@@ -5,7 +5,6 @@ from src.auth import *
 from src.constant import *
 
 
-
 session = {"key": None}
 
 
@@ -143,4 +142,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
