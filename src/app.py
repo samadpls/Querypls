@@ -1,18 +1,17 @@
 import streamlit as st
 from langchain import PromptTemplate, LLMChain, HuggingFaceHub
 from deta import Deta
-from auth import *
+from src.auth import *
+from src.constant import *
 
 
-DETA_PROJECT_KEY = "d0spnkqtx1x_6hWnMaUCaEjJ318NHJYy66xrwBqZHKi6"
-HUGGINGFACE_API_TOKEN = "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"
-REPO_ID = "tiiuae/falcon-7b-instruct"
+
 session = {"key": None}
 
 
 def configure_page_styles():
     st.set_page_config(page_title="Querypls")
-    with open("styles.css") as f:
+    with open("static/css/styles.css") as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
     hide_streamlit_style = (
         """<style>#MainMenu {visibility: hidden;}footer {visibility: hidden;}</style>"""
@@ -23,7 +22,7 @@ def configure_page_styles():
 def display_logo_and_heading():
     img, heading = st.columns([1, 8])
     with img:
-        st.image("logo/logo.png", width=40)  # logo
+        st.image("static/image/logo.png", width=40)  # logo
     with heading:
         st.title("Querypls - prompt-2-SQL")  # heading
 
@@ -78,7 +77,7 @@ def database(db):
             {
                 "email": st.session_state.user_email,
                 "chat": st.session_state["messages"],
-                "title": title[:15] + "....." if len(title) > 15 else title,
+                "title": title[:25] + "....." if len(title) > 25 else title,
             }
         )
 
