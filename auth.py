@@ -27,4 +27,4 @@ async def get_email(client: GoogleOAuth2, token: str):
 def get_login_str():
     client: GoogleOAuth2 = GoogleOAuth2(CLIENT_ID, CLIENT_SECRET)
     authorization_url = asyncio.run(get_authorization_url(client, REDIRECT_URI))
-    return f"""<a href="{authorization_url}" target="_self"><button>Login with Google</button></a>"""
+    return f"""<a href="{authorization_url}" target="_self"><button class="button-51" role="button">Login with Google</button></a>"""
