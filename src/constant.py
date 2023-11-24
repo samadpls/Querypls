@@ -1,8 +1,14 @@
-#app
-DETA_PROJECT_KEY = "d0spnkqtx1x_6hWnMaUCaEjJ318NHJYy66xrwBqZHKi6"
-HUGGINGFACE_API_TOKEN = "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"
-REPO_ID = "tiiuae/falcon-7b-instruct"
-# auth
-CLIENT_ID = "386097294295-cshguegcn7krddrt1mok2srpsqej1d58.apps.googleusercontent.com"
-CLIENT_SECRET = "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"
-REDIRECT_URI = "http://localhost:8501/"
+from streamlit import secrets
+
+DETA_PROJECT_KEY = secrets["DETA_PROJECT_KEY"]
+HUGGINGFACE_API_TOKEN = secrets["HUGGINGFACE_API_TOKEN"]
+REPO_ID = secrets["REPO_ID"]
+CLIENT_ID = secrets["CLIENT_ID"]
+CLIENT_SECRET = secrets["CLIENT_SECRET"]
+REDIRECT_URI = secrets["REDIRECT_URI"]
+TEMPLATE = secrets["TEMPLATE"]
+AUTHORIZE_URL = "https://accounts.google.com/o/oauth2/v2/auth"
+TOKEN_URL = "https://oauth2.googleapis.com/token"
+REFRESH_TOKEN_URL = "https://oauth2.googleapis.com/token"
+REVOKE_TOKEN_URL = "https://oauth2.googleapis.com/revoke"
+SCOPE = "email"

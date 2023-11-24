@@ -1,143 +1,94 @@
+from langchain.chains import LLMChain
+from langchain.prompts import PromptTemplate
 import streamlit as st
-from langchain import PromptTemplate, LLMChain, HuggingFaceHub
 from deta import Deta
+import sys
+import os
+from backend import configure_page_styles, create_oauth2_component, display_github_badge, handle_google_login_if_needed, hide_main_menu_and_footer
+from frontend import create_message, display_logo_and_heading, display_previous_chats, display_welcome_message, handle_new_chat
+from model import create_huggingface_hub
+
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 from src.auth import *
 from src.constant import *
 
-
-session = {"key": None}
-
-
-def configure_page_styles():
-    st.set_page_config(page_title="Querypls")
-    with open("static/css/styles.css") as f:
-        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-    hide_streamlit_style = (
-        """<style>#MainMenu {visibility: hidden;}footer {visibility: hidden;}</style>"""
-    )
-    st.markdown(hide_streamlit_style, unsafe_allow_html=True)
-
-
-def display_logo_and_heading():
-    img, heading = st.columns([1, 8])
-    with img:
-        st.image("static/image/logo.png", width=40)  # logo
-    with heading:
-        st.title("Querypls - prompt-2-SQL")  # heading
-
-
-def handle_new_chat(db):
-    database(db)
-    st.session_state["messages"] = [
-        {"role": "assistant", "content": "How may I help you?"}
-    ]
-
-
-def handle_google_login(code):
-    if code:
-        client = GoogleOAuth2(CLIENT_ID, CLIENT_SECRET)
-        token = asyncio.run(get_access_token(client, REDIRECT_URI, code))
-        user_id, user_email = asyncio.run(get_email(client, token["access_token"]))
-        if ["user_id", "user_email"] not in st.session_state:
-            st.session_state.user_id = user_id
-            st.session_state.user_email = user_email
-        st.session_state.google_login_run = True
-    else:
-        st.write(get_login_str(), unsafe_allow_html=True)
-
-
-def display_user_info():
-    st.success("Google Login credentials already provided!", icon="✅")
-    st.write("User ID:", st.session_state.user_id)
-    st.write("User Email:", st.session_state.user_email)
-
-
-def display_previous_chats(db):
-    previous_chats = db.fetch({"email": st.session_state.user_email})
-    for chat in previous_chats.items:
-        chat_button = st.button(chat["title"])
-        if chat_button:
-            st.session_state["messages"] = chat["chat"]
-            session["key"] = chat["key"]
-            database(db)
-
-
-def database(db):
-    try:
-        existing_chat = db.get(key=session["key"])
-    except:
-        existing_chat = False
-    if existing_chat:
-        existing_chat["chat"].extend(st.session_state["messages"])
-        db.put(existing_chat)
-    elif len(st.session_state["messages"]) > 1:
-        title = st.session_state["messages"][1]["content"]
-        db.put(
-            {
-                "email": st.session_state.user_email,
-                "chat": st.session_state["messages"],
-                "title": title[:25] + "....." if len(title) > 25 else title,
-            }
-        )
-
-
 def main():
-    configure_page_styles()
+    """Main function to configure and run the Querypls application."""
+    configure_page_styles('static/css/styles.css')
     deta = Deta(DETA_PROJECT_KEY)
-    llm = HuggingFaceHub(
-        huggingfacehub_api_token=HUGGINGFACE_API_TOKEN,
-        repo_id=REPO_ID,
-        model_kwargs={"temperature": 0.2, "max_new_tokens": 180},
-    )
+    if "model" not in st.session_state:
+        llm = create_huggingface_hub()
+        st.session_state["model"] = llm
     db = deta.Base("users")
-    code = st.experimental_get_query_params().get("code", None)
+    oauth2 = create_oauth2_component()
 
-    st.markdown(
-        """<style>#MainMenu {visibility: hidden;}footer {visibility: hidden;}</style>""",
-        unsafe_allow_html=True,
-    )
+    if "code" not in st.session_state or not st.session_state.code:
+        st.session_state.code = False
 
-    if "google_login_run" not in st.session_state:
-        st.session_state.google_login_run = False
+    if "code" not in st.session_state:
+        st.session_state.code = False
 
-    with st.sidebar:
-        display_logo_and_heading()
+    hide_main_menu_and_footer()
+    if st.session_state.code == False:
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            pass
+        with col2:
+            with st.container():
 
-        if st.button("➕ New chat"):
-            handle_new_chat(db)
+                display_github_badge()
+                display_logo_and_heading()
 
-        if not st.session_state.google_login_run:
-            handle_google_login(code)
+                st.markdown("`Made with 🤍`")
+                if "token" not in st.session_state:
+                    result = oauth2.authorize_button(
+                        "Connect with Google",
+                        REDIRECT_URI,
+                        SCOPE,
+                        icon="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 48 48'%3E%3Cdefs%3E%3Cpath id='a' d='M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z'/%3E%3C/defs%3E%3CclipPath id='b'%3E%3Cuse xlink:href='%23a' overflow='visible'/%3E%3C/clipPath%3E%3Cpath clip-path='url(%23b)' fill='%23FBBC05' d='M0 37V11l17 13z'/%3E%3Cpath clip-path='url(%23b)' fill='%23EA4335' d='M0 11l17 13 7-6.1L48 14V0H0z'/%3E%3Cpath clip-path='url(%23b)' fill='%2334A853' d='M0 37l30-23 7.9 1L48 0v48H0z'/%3E%3Cpath clip-path='url(%23b)' fill='%234285F4' d='M48 48L17 24l-4-3 35-10z'/%3E%3C/svg%3E",
+                        use_container_width=True,
+                    )
+                    handle_google_login_if_needed(result)
+                    if st.session_state.code:
+                        st.rerun()
+        with col3:
+            pass
+    else:
+        with st.sidebar:
+            display_github_badge()
+            display_logo_and_heading()
+            st.markdown("`Made with 🤍`")
+            if st.session_state.code:
+                handle_new_chat(db)
+            if st.session_state.code:
+                display_previous_chats(db)
 
-        if st.session_state.google_login_run:
-            display_user_info()
-            display_previous_chats(db)
+        if "messages" not in st.session_state:
+            create_message()
+        display_welcome_message()
 
-    if "messages" not in st.session_state:
-        st.session_state["messages"] = [
-            {"role": "assistant", "content": "How may I help you?"}
-        ]
+        for message in st.session_state.messages:
+            with st.chat_message(message["role"]):
+                st.markdown(message["content"], unsafe_allow_html=True)
 
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"], unsafe_allow_html=True)
+        if prompt := st.chat_input(disabled=(st.session_state.code is False)):
+            st.session_state.messages.append({"role": "user", "content": prompt})
+            with st.chat_message("user"):
+                st.write(prompt)
 
-    if prompt := st.chat_input(disabled=(code is None)):
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.write(prompt)
-        template = """Your task is to create sql query of the following {question}, just sql query and no text
-        """
-        prompting = PromptTemplate(template=template, input_variables=["question"])
-        llm_chain = LLMChain(prompt=prompting, llm=llm)
+            prompting = PromptTemplate(template=TEMPLATE, input_variables=["question"])
+            if "model" in st.session_state:
+                llm_chain = LLMChain(prompt=prompting, llm=st.session_state.model)
 
-        if st.session_state.messages[-1]["role"] != "assistant":
-            with st.chat_message("assistant"):
-                with st.spinner("Generating..."):
-                    response = llm_chain.run(prompt)
-                    st.markdown(response, unsafe_allow_html=True)
-                    message = {"role": "assistant", "content": response}
-                    st.session_state.messages.append(message)
+                if st.session_state.messages[-1]["role"] != "assistant":
+                    with st.chat_message("assistant"):
+                        with st.spinner("Generating..."):
+                            response = llm_chain.run(prompt)
+                            st.markdown(response, unsafe_allow_html=True)
+                            message = {"role": "assistant", "content": response}
+                            st.session_state.messages.append(message)
 
 
 if __name__ == "__main__":

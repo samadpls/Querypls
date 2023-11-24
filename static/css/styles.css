@@ -1,76 +1,85 @@
-body{
-    background-color:#141D26;
-    color: white;
+
+#root > div:nth-child(1) > div.withScreencast > div > div > div > section > div.block-container.st-emotion-cache-z5fcl4.ea3mdgi4 > div > div > div.st-emotion-cache-ocqkz7.e1f1d6gn4 > div:nth-child(2){
+  background-color: rgb(233, 240, 255);
+  border: 1px solid #152544 ;  /* Add border with 1px thickness and black color */
+  border-radius: 10px;    /* Add border radius for rounded corners */
+  padding: 10px;          /* Add padding for spacing inside the element */
+   
 }
-label.css-k3w14i.effi0qh3{
-    font-size: medium;
-    font-weight: bold;
+#root > div:nth-child(1) > div.withScreencast > div > div > div > section > div.block-container.st-emotion-cache-z5fcl4.ea3mdgi4 > div > div > div.st-emotion-cache-ocqkz7.e1f1d6gn4 > div:nth-child(2) > div > div > div > div > div:nth-child(3){
+  background-color:  #152544;
+  color:rgb(17, 17, 17) 
 }
-span.css-10trblm.e16nr0p30{
-    top: -20px;
+#root > div:nth-child(1) > div.withScreencast > div > div > div > section > div.block-container.st-emotion-cache-z5fcl4.ea3mdgi4 > div > div > div.st-emotion-cache-ocqkz7.e1f1d6gn4{
+  background-color: rgb(255, 255, 255);
 }
-#Mainmenu {
-    visibility: hidden;
-}
-footer{
-    visibility: hidden;
-}
-header{
-    visibility: hidden;
-}
-h3{
-    left: -100px;
-    top:-100px;
+#root > div:nth-child(1) > div.withScreencast > div > div > div > section > div.block-container.st-emotion-cache-z5fcl4.ea3mdgi4 > div > div > div.st-emotion-cache-ocqkz7.e1f1d6gn4 > div:nth-child(2) > div > div > div > div > div:nth-child(5){
+  background-color:  #152544;
 }
 
 
-.button-51 {
-  appearance: none;
-  background-color: #2ea44f;
-  border: 1px solid rgba(27, 31, 35, .15);
-  border-radius: 6px;
-  box-shadow: rgba(27, 31, 35, .1) 0 1px 0;
-  box-sizing: border-box;
-  color: #fff;
+
+ #root > div:nth-child(1) > div.withScreencast > div > div > div > section > div.block-container.st-emotion-cache-z5fcl4.ea3mdgi4 > div > div > div.st-emotion-cache-ocqkz7.e1f1d6gn4 > div:nth-child(2) > div > div > div > div > div:nth-child(3) > div > div > p > code{
+  color:white;
+  background-color: #152544;
+ }
+ #root > div:nth-child(1) > div.withScreencast > div > div > div > section.st-emotion-cache-nju155.eczjsme11 > div.st-emotion-cache-6qob1r.eczjsme3{
+  background-color: rgb(184, 205, 252);
+ }
+ #root > div:nth-child(1) > div.withScreencast > div > div > div > section.main.st-emotion-cache-uf99v8.ea3mdgi5{
+  border: 2px solid rgb(0, 2, 8) ;  /* Add border with 1px thickness and black color */
+  border-radius: 0px;    /* Add border radius for rounded corners */
+  padding: 10px;          /* Add padding for spacing inside the element */
+ }
+ #root > div:nth-child(1) > div.withScreencast > div > div > div > section.main.st-emotion-cache-uf99v8.ea3mdgi5 > div.block-container.st-emotion-cache-z5fcl4.ea3mdgi4 > div > div > div.stChatMessage.st-emotion-cache-4oy321.eeusbqq4{
+  background-color: rgb(233, 240, 255);
+  color: #152544;
+
+ }
+ #root > div:nth-child(1) > div.withScreencast > div > div > div > section.main.st-emotion-cache-uf99v8.ea3mdgi5 > div.block-container.st-emotion-cache-z5fcl4.ea3mdgi4 > div > div > div.stChatMessage.st-emotion-cache-4oy321.eeusbqq4 > div.st-emotion-cache-14m9yky.eeusbqq3{
+  color:#152544;
+  background-color: rgb(233, 240, 255);
+ }
+ #root > div:nth-child(1) > div.withScreencast > div > div > div > section.main.st-emotion-cache-uf99v8.ea3mdgi5 > div.block-container.st-emotion-cache-z5fcl4.ea3mdgi4 > div > div > div.element-container.st-emotion-cache-10gv909.e1f1d6gn3 > div > div > div > div.st-bg.st-b4.st-bh.st-co.st-bj.st-bk.st-bl.st-bm.st-bn.st-bo.st-bp.st-bq.st-br.st-b2.st-bs.st-av.st-ay.st-aw.st-ax.st-bt.st-bu.st-bv.st-bw.st-bx.st-by.st-bz.st-c0 > div{
+  background-color: rgb(12, 51, 158);
+ }
+ #root > div:nth-child(1) > div.withScreencast > div > div > header{
+    background-color: rgb(233, 240, 255);
+    color: #152544;
+}
+
+#root > div:nth-child(1) > div.withScreencast > div > div > div > div > button > svg{
+  color:#152544;
+  width: 20px
+}
+.sidebar{
+  background-color: rgb(233, 240, 255);
+}
+.stButton {
+  /* Add styles for the stButton class */
+  background-color: rgb(218, 218, 230);
+  color: #152544; 
+  /* padding: 10px 20px; */
+  border: 3px;
+  border-radius: 5px;
+  width: 40px;
   cursor: pointer;
-  display: inline-block;
-  font-family: -apple-system,system-ui,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji";
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 20px;
-  padding: 6px 16px;
-  position: relative;
-  text-align: center;
-  text-decoration: none;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
-  vertical-align: middle;
-  white-space: nowrap;
+
+
+}
+.row-widget {
+  /* Add styles for the row-widget class */
+  margin-bottom: 10px;
+  background-color: rgb(233, 240, 255);
+  color:#152544;
+
 }
 
-.button-3:focus:not(:focus-visible):not(.focus-visible) {
-  box-shadow: none;
-  outline: none;
+#root > div:nth-child(1) > div.withScreencast > div > div > div > section.st-emotion-cache-nju155.eczjsme11 > div.st-emotion-cache-6qob1r.eczjsme3 > div.st-emotion-cache-16txtl3.eczjsme4 > div > div > div > div:nth-child(5){
+  background-color:rgb(0, 0, 0) ;
+  color: #152544;
 }
 
-.button-3:hover {
-  background-color: #2c974b;
-}
-
-.button-3:focus {
-  box-shadow: rgba(46, 164, 79, .4) 0 0 0 3px;
-  outline: none;
-}
-
-.button-3:disabled {
-  background-color: #94d3a2;
-  border-color: rgba(27, 31, 35, .1);
-  color: rgba(255, 255, 255, .8);
-  cursor: default;
-}
-
-.button-3:active {
-  background-color: #298e46;
-  box-shadow: rgba(20, 70, 32, .2) 0 1px 0 inset;
+#root > div:nth-child(1) > div.withScreencast > div > div > header > div.st-emotion-cache-zq5wmm.ezrtsby0 > div > div:nth-child(2) > button > div > div {
+  display: none;
 }
