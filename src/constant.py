@@ -1,8 +1,13 @@
-#app
-DETA_PROJECT_KEY = "d0spnkqtx1x_6hWnMaUCaEjJ318NHJYy66xrwBqZHKi6"
-HUGGINGFACE_API_TOKEN = "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"
-REPO_ID = "tiiuae/falcon-7b-instruct"
-# auth
-CLIENT_ID = "386097294295-cshguegcn7krddrt1mok2srpsqej1d58.apps.googleusercontent.com"
-CLIENT_SECRET = "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"
-REDIRECT_URI = "http://localhost:8501/"
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Access environment variables
+DETA_PROJECT_KEY = os.environ.get("DETA_PROJECT_KEY")
+HUGGINGFACE_API_TOKEN = os.environ.get("HUGGINGFACE_API_TOKEN")
+REPO_ID = os.environ.get("REPO_ID")
+CLIENT_ID = os.environ.get("CLIENT_ID")
+CLIENT_SECRET = os.environ.get("CLIENT_SECRET")
+REDIRECT_URI = os.environ.get("REDIRECT_URI")
