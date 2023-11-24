@@ -4,5 +4,6 @@ asyncio==3.4.3
 httpx_oauth==0.13.0
 streamlit==1.28.0
 langchain==0.0.336
-deta==1.2.0
+deta==1.2.
+python-dotenv==1.0.0
 black
