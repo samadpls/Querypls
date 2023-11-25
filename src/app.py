@@ -1,8 +1,10 @@
+from langchain.chains import LLMChain
+from langchain.llms import HuggingFaceHub
+from langchain.prompts import PromptTemplate
 import streamlit as st
-from langchain import PromptTemplate, LLMChain, HuggingFaceHub
 from deta import Deta
-from src.auth import *
-from src.constant import *
+from auth import *
+from constant import *
 
 
 session = {"key": None}
@@ -19,11 +21,7 @@ def configure_page_styles():
 
 
 def display_logo_and_heading():
-    img, heading = st.columns([1, 8])
-    with img:
-        st.image("static/image/logo.png", width=40)  # logo
-    with heading:
-        st.title("Querypls - prompt-2-SQL")  # heading
+    st.image("static/image/logo.png", width=220)  # logo
 
 
 def handle_new_chat(db):
@@ -47,14 +45,12 @@ def handle_google_login(code):
 
 
 def display_user_info():
-    st.success("Google Login credentials already provided!", icon="✅")
-    st.write("User ID:", st.session_state.user_id)
-    st.write("User Email:", st.session_state.user_email)
+    st.success(f"Login successful! Welcome, {st.session_state.user_email}! ✅")
 
 
 def display_previous_chats(db):
     previous_chats = db.fetch({"email": st.session_state.user_email})
-    for chat in previous_chats.items:
+    for chat in reversed(previous_chats.items):
         chat_button = st.button(chat["title"])
         if chat_button:
             st.session_state["messages"] = chat["chat"]
@@ -107,6 +103,7 @@ def main():
             handle_new_chat(db)
 
         if not st.session_state.google_login_run:
+            # st.session_state.google_login_run = True
             handle_google_login(code)
 
         if st.session_state.google_login_run:
@@ -126,9 +123,8 @@ def main():
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.write(prompt)
-        template = """Your task is to create sql query of the following {question}, just sql query and no text
-        """
-        prompting = PromptTemplate(template=template, input_variables=["question"])
+
+        prompting = PromptTemplate(template=TEMPLATE, input_variables=["question"])
         llm_chain = LLMChain(prompt=prompting, llm=llm)
 
         if st.session_state.messages[-1]["role"] != "assistant":
