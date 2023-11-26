@@ -1,5 +1,5 @@
 import asyncio
-from constant import *
+from src.constant import *
 from httpx_oauth.clients.google import GoogleOAuth2
 
 

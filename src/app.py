@@ -3,15 +3,19 @@ from langchain.llms import HuggingFaceHub
 from langchain.prompts import PromptTemplate
 import streamlit as st
 from deta import Deta
-from auth import *
-from constant import *
+import sys, os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from src.auth import *
+from src.constant import *
 
 
 session = {"key": None}
 
 
 def configure_page_styles():
-    st.set_page_config(page_title="Querypls")
+    st.set_page_config(page_title="Querypls", page_icon="💬")
     with open("static/css/styles.css") as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
     hide_streamlit_style = (
@@ -21,14 +25,9 @@ def configure_page_styles():
 
 
 def display_logo_and_heading():
-    st.image("static/image/logo.png", width=220)  # logo
+    st.image("static/image/logo.png")
 
 
-def handle_new_chat(db):
-    database(db)
-    st.session_state["messages"] = [
-        {"role": "assistant", "content": "How may I help you?"}
-    ]
 
 
 def handle_google_login(code):
@@ -44,37 +43,64 @@ def handle_google_login(code):
         st.write(get_login_str(), unsafe_allow_html=True)
 
 
-def display_user_info():
-    st.success(f"Login successful! Welcome, {st.session_state.user_email}! ✅")
+def display_previous_chats(db, max_chat_histories=5):
+    previous_chats = db.fetch({"email": st.session_state.user_email}).items
+    reversed_chats = reversed(previous_chats)
 
-
-def display_previous_chats(db):
-    previous_chats = db.fetch({"email": st.session_state.user_email})
-    for chat in reversed(previous_chats.items):
-        chat_button = st.button(chat["title"])
+    for _, chat in enumerate(reversed_chats):
+        chat_button = st.button(chat["title"], key=chat["key"])
         if chat_button:
             st.session_state["messages"] = chat["chat"]
             session["key"] = chat["key"]
             database(db)
 
 
-def database(db):
-    try:
-        existing_chat = db.get(key=session["key"])
-    except:
-        existing_chat = False
-    if existing_chat:
-        existing_chat["chat"].extend(st.session_state["messages"])
+def database(db, max_chat_histories=5):
+    user_email = st.session_state.user_email
+    user_chats = db.fetch({"email": user_email}).items
+    existing_chat = {"chat": False}
+
+    for chat in user_chats:
+        if chat["key"] == session["key"]:
+            existing_chat["chat"] = chat["chat"]
+
+    if existing_chat["chat"]:
+        new_messages = [
+            message
+            for message in st.session_state["messages"]
+            if message not in existing_chat["chat"]
+        ]
+        existing_chat["chat"].extend(new_messages)
         db.put(existing_chat)
     elif len(st.session_state["messages"]) > 1:
         title = st.session_state["messages"][1]["content"]
         db.put(
             {
-                "email": st.session_state.user_email,
+                "email": user_email,
                 "chat": st.session_state["messages"],
                 "title": title[:25] + "....." if len(title) > 25 else title,
             }
         )
+
+        if len(user_chats) >= max_chat_histories:
+            print(user_chats[0]["key"], "user_chats[0]['key']")
+            db.delete(user_chats[0]["key"])
+            st.warning(
+                f"Chat '{user_chats[0]['title']}' has been removed as you reached the limit of {max_chat_histories} chat histories."
+            )
+
+
+def handle_new_chat(db, max_chat_histories=5):
+    remaining_chats = max_chat_histories - len(
+        db.fetch({"email": st.session_state.user_email}).items
+    )
+    st.markdown(f" #### Remaining Chats: `{remaining_chats}/{max_chat_histories}`")
+    if st.button("➕ New chat"):
+        database(db)
+        st.session_state["messages"] = [
+            {"role": "assistant", "content": "How may I help you?"}
+        ]
+
 
 
 def main():
@@ -97,23 +123,35 @@ def main():
         st.session_state.google_login_run = False
 
     with st.sidebar:
-        display_logo_and_heading()
+        st.markdown(
+            """<a href='https://github.com/samadpls/Querypls'><img src='https://img.shields.io/github/stars/samadpls/querypls?color=red&label=star%20me&logoColor=red&style=social'></a>""",
+            unsafe_allow_html=True,
+        )
 
-        if st.button("➕ New chat"):
-            handle_new_chat(db)
+        display_logo_and_heading()
+        st.markdown("`Made with 🤍 by samadpls`")
 
         if not st.session_state.google_login_run:
-            # st.session_state.google_login_run = True
             handle_google_login(code)
+        
+        if code is not None:
+            handle_new_chat(db)
 
         if st.session_state.google_login_run:
-            display_user_info()
             display_previous_chats(db)
 
     if "messages" not in st.session_state:
         st.session_state["messages"] = [
             {"role": "assistant", "content": "How may I help you?"}
         ]
+    no_chat_history = len(st.session_state.messages) == 1
+    if no_chat_history:
+        if "user_email" in st.session_state:
+            st.markdown(
+                f"""#### Welcome `{st.session_state.user_email}` to \n ## 🛢💬Querypls - Prompt to SQL"""
+            )
+        else:
+            st.markdown(f"#### Welcome to \n ## 🛢💬Querypls - Prompt to SQL")
 
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
