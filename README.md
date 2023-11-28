@@ -1,34 +1,50 @@
 
-<img src="https://github.com/samadpls/Querypls/assets/94792103/525bb160-1fdd-4316-b678-d9a7d86d2d3a">
+<img src="static/image/logo.png">
 
-# Querypls - SQL Query Provider 🗄
+![Supported python versions](https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11-blue)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black) 
+[![License](https://img.shields.io/badge/License-MIT%202.0-blue.svg)](LICENSE)
+<img src='https://img.shields.io/github/stars/samadpls/querypls?color=red&label=stars&logoColor=black&style=social'>
 
-Querypls is a simple web application built with Streamlit that acts as an SQL query provider. It allows users to enter SQL queries and receive query results as responses. The application uses the power of language models provided by Hugging Face to generate SQL queries based on user input.
+# 💬 Querypls - Prompt to SQL 
+
+Querypls is a web application that provides an interactive chat interface, simplifying SQL query generation. Users can effortlessly enter SQL queries and receive corresponding results. The application harnesses the capabilities of the language models from Hugging Face to generate SQL queries based on user input.
 
 ## Key Features
 
-🔍 Enter SQL queries and receive query results as responses.
-🤖 Uses language models from Hugging Face for generating SQL queries.
-💻 User-friendly interface for easy interaction.
+💬 Interactive chat interface for easy communication.  
+🔍 Enter SQL queries and receive query results as responses.  
+🤖 Utilizes language models from Hugging Face for advanced query generation ([Querypls-prompt2sql](https://huggingface.co/samadpls/querypls-prompt2sql)).  
+💻 User-friendly interface for seamless interaction.  
+🔒 Secure Google Authentication for OAuth2 integration.  
+🔄 Chat history recording for easy reference.
 
-## Usage
+## How to Contribute
 
-To use Querypls, visit the website [here](https://querypls.streamlit.app/).
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/samadpls/Querypls.git
+    ```
 
+2. Navigate to the project directory:
+    ```bash
+    cd Querypls
+    ```
 
+3. Install dependencies:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
+4. Create a `.env` file based on `.env_example` and set the necessary variables.
 
-https://github.com/samadpls/Querypls/assets/94792103/e8fd1192-aa75-41c9-a680-f4ee99d9087d
+5. Run the application:
+    ```bash
+    streamlit run app.py
+    ```
 
+6. Open the provided link in your browser to use Querypls.
 
-
-
-
-
-## Improving Query Generation
-
-If you have expertise in improving the prompt or generating more accurate SQL queries, your contribution in enhancing the language model would be highly appreciated. Feel free to experiment and suggest changes to the prompt template in order to achieve better query generation.
-<a target="_blank" href="https://colab.research.google.com/github/samadpls/Querypls/blob/main/Querypls.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
