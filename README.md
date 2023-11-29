@@ -19,6 +19,9 @@ Querypls is a web application that provides an interactive chat interface, simpl
 🔒 Secure Google Authentication for OAuth2 integration.  
 🔄 Chat history recording for easy reference.
 
+[QueryplsDemo.webm](https://github.com/samadpls/Querypls/assets/94792103/7fcd6608-c8e0-4ba2-8166-5d4021adeb69)
+
+
 ## How to Contribute
 
 1. Clone the repository:
