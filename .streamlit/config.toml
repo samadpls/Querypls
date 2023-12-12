@@ -1,4 +1,6 @@
 [theme]
 base="dark"
-primaryColor="#d09494"
-backgroundColor="#07060c" 
+primaryColor="#82ace1"
+backgroundColor="white"
+secondaryBackgroundColor = "white"
+textColor =  "black"

@@ -43,7 +43,7 @@ Querypls is a web application that provides an interactive chat interface, simpl
 
 5. Run the application:
     ```bash
-    streamlit run app.py
+    streamlit run src/app.py
     ```
 
 6. Open the provided link in your browser to use Querypls.
