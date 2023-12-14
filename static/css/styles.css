@@ -49,7 +49,7 @@
 }
 
 #root > div:nth-child(1) > div.withScreencast > div > div > div > div > button > svg{
-  color:white;
+  color:navy;
   width: 20px
 }
 .sidebar{
@@ -58,7 +58,7 @@
 .stButton {
   /* Add styles for the stButton class */
   background-color: rgb(218, 218, 230);
-  color: white; 
+  color: navy; 
   /* padding: 10px 20px; */
   border: 3px;
   border-radius: 5px;
@@ -74,12 +74,7 @@
   color:navy;
 
 }
-#root > div:nth-child(1) > div.withScreencast > div > div > div > section.st-emotion-cache-nju155.eczjsme11 > div.st-emotion-cache-6qob1r.eczjsme3 > div.st-emotion-cache-16txtl3.eczjsme4 > div > div > div > div:nth-child(3) > div > div > p > code{
-  color: navy; 
-}
-#root > div:nth-child(1) > div.withScreencast > div > div > div > section.st-emotion-cache-nju155.eczjsme11 > div.st-emotion-cache-6qob1r.eczjsme3 > div.st-emotion-cache-16txtl3.eczjsme4 > div > div > div > div:nth-child(4) > div > div > div > h4 > code{
-  color:navy; 
-}
+
 
 #root > div:nth-child(1) > div.withScreencast > div > div > div > section.st-emotion-cache-nju155.eczjsme11 > div.st-emotion-cache-6qob1r.eczjsme3 > div.st-emotion-cache-16txtl3.eczjsme4 > div > div > div > div:nth-child(5){
   background-color:rgb(0, 0, 0) ;
