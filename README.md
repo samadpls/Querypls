@@ -21,6 +21,15 @@ Querypls is a web application that provides an interactive chat interface, simpl
 
 [QueryplsDemo.webm](https://github.com/samadpls/Querypls/assets/94792103/7fcd6608-c8e0-4ba2-8166-5d4021adeb69)
 
+# Acknowledgments
+
+`Querypls` received a shoutout from [🦜 🔗 Langchain](https://www.langchain.com/) on their Twitter, reaching over **60,000 impressions**. Additionally, it was featured under the **Community Favorite Projects** section on `🦜 🔗 Langchain's blog`, leading to a significant increase in stars for this repository and a growing user base.
+| 🔗 Langhchain Twitter Post | 🔗 Langhcain Blog Post|
+|----------|----------|
+|   Data   |   Data   |
+> A big thank you to Langchain for their support and recognition!
+
+---
 
 ## How to Contribute
 
