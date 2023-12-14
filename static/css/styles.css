@@ -78,10 +78,14 @@
   color: navy; 
 }
 #root > div:nth-child(1) > div.withScreencast > div > div > div > section.st-emotion-cache-nju155.eczjsme11 > div.st-emotion-cache-6qob1r.eczjsme3 > div.st-emotion-cache-16txtl3.eczjsme4 > div > div > div > div:nth-child(4) > div > div > div > h4 > code{
-  color:navy; 
+  color:rgb(68, 68, 184); 
 }
 
 #root > div:nth-child(1) > div.withScreencast > div > div > div > section.st-emotion-cache-nju155.eczjsme11 > div.st-emotion-cache-6qob1r.eczjsme3 > div.st-emotion-cache-16txtl3.eczjsme4 > div > div > div > div:nth-child(5){
   background-color:rgb(0, 0, 0) ;
   color: navy;
+}
+
+#root > div:nth-child(1) > div.withScreencast > div > div > header > div.st-emotion-cache-zq5wmm.ezrtsby0 > div > div:nth-child(2) > button > div > div {
+  display: none;
 }
