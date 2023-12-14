@@ -233,6 +233,16 @@ def display_welcome_message():
         st.markdown(f"#### Welcome to \n ## 🛢💬Querypls - Prompt to SQL")
 
 
+def create_oauth2_component():
+    return OAuth2Component(
+        CLIENT_ID,
+        CLIENT_SECRET,
+        AUTHORIZE_URL,
+        TOKEN_URL,
+        REFRESH_TOKEN_URL,
+        REVOKE_TOKEN_URL,
+    )
+
 def main():
     """Main function to configure and run the Querypls application."""
     configure_page_styles('static/css/styles.css')
@@ -241,16 +251,13 @@ def main():
         llm = create_huggingface_hub()
         st.session_state["model"] = llm
     db = deta.Base("users")
-    oauth2 = OAuth2Component(
-        CLIENT_ID,
-        CLIENT_SECRET,
-        AUTHORIZE_URL,
-        TOKEN_URL,
-        REFRESH_TOKEN_URL,
-        REVOKE_TOKEN_URL,
-    )
-    if "code" not in st.session_state:
+    oauth2 = create_oauth2_component()
+
+    if "code" not in st.session_state or not st.session_state.code:
         st.session_state.code = False
+
+    # if "code" not in st.session_state:
+    #     st.session_state.code = False
 
     hide_main_menu_and_footer()
     if st.session_state.code == False:
@@ -273,6 +280,7 @@ def main():
                         use_container_width=True,
                     )
                     handle_google_login_if_needed(result)
+                    st.rerun()
         with col3:
             pass
     else:
