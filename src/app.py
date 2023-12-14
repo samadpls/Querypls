@@ -256,8 +256,8 @@ def main():
     if "code" not in st.session_state or not st.session_state.code:
         st.session_state.code = False
 
-    # if "code" not in st.session_state:
-    #     st.session_state.code = False
+    if "code" not in st.session_state:
+        st.session_state.code = False
 
     hide_main_menu_and_footer()
     if st.session_state.code == False:
@@ -280,7 +280,8 @@ def main():
                         use_container_width=True,
                     )
                     handle_google_login_if_needed(result)
-                    st.rerun()
+                    if st.session_state.code:
+                        st.rerun()
         with col3:
             pass
     else:
