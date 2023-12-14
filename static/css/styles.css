@@ -44,8 +44,8 @@
   background-color: rgb(12, 51, 158);
  }
  #root > div:nth-child(1) > div.withScreencast > div > div > header{
-    background-color: navy;
-    color: white;
+    background-color: rgb(233, 240, 255);
+    color: navy;
 }
 
 #root > div:nth-child(1) > div.withScreencast > div > div > div > div > button > svg{
