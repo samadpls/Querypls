@@ -4,8 +4,6 @@ from langchain.prompts import PromptTemplate
 import streamlit as st
 from streamlit_oauth import OAuth2Component
 from deta import Deta
-from streamlit.runtime import caching
-from streamlit import runtime
 import sys
 import time
 import os
@@ -18,7 +16,7 @@ from src.auth import *
 from src.constant import *
 
 
-def configure_page_styles():
+def configure_page_styles(file_name):
     """Configures Streamlit page styles for Querypls.
 
     Sets page title, icon, and applies custom CSS styles.
@@ -27,7 +25,10 @@ def configure_page_styles():
     Note:
     Ensure 'static/css/styles.css' exists with desired styles.
     """
-    st.set_page_config(page_title="Querypls", page_icon="💬")
+    st.set_page_config(page_title="Querypls", page_icon="💬",layout="wide",)
+    with open(file_name) as f:
+        st.markdown('<style>{}</style>'.format(f.read()), unsafe_allow_html=True)
+
     hide_streamlit_style = (
         """<style>#MainMenu {visibility: hidden;}footer {visibility: hidden;}</style>"""
     )
@@ -234,7 +235,7 @@ def display_welcome_message():
 
 def main():
     """Main function to configure and run the Querypls application."""
-    configure_page_styles()
+    configure_page_styles('static/css/styles.css')
     deta = Deta(DETA_PROJECT_KEY)
     if "model" not in st.session_state:
         llm = create_huggingface_hub()
@@ -253,21 +254,27 @@ def main():
 
     hide_main_menu_and_footer()
     if st.session_state.code == False:
-        with st.container():
-            display_github_badge()
-            display_logo_and_heading()
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            pass
+        with col2:
+            with st.container():
 
-            st.markdown("`Made with 🤍 by samadpls`")
-            if "token" not in st.session_state:
-                result = oauth2.authorize_button(
-                    "Connect with Google",
-                    REDIRECT_URI,
-                    SCOPE,
-                    icon="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 48 48'%3E%3Cdefs%3E%3Cpath id='a' d='M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z'/%3E%3C/defs%3E%3CclipPath id='b'%3E%3Cuse xlink:href='%23a' overflow='visible'/%3E%3C/clipPath%3E%3Cpath clip-path='url(%23b)' fill='%23FBBC05' d='M0 37V11l17 13z'/%3E%3Cpath clip-path='url(%23b)' fill='%23EA4335' d='M0 11l17 13 7-6.1L48 14V0H0z'/%3E%3Cpath clip-path='url(%23b)' fill='%2334A853' d='M0 37l30-23 7.9 1L48 0v48H0z'/%3E%3Cpath clip-path='url(%23b)' fill='%234285F4' d='M48 48L17 24l-4-3 35-10z'/%3E%3C/svg%3E",
-                    use_container_width=True,
-                )
-                handle_google_login_if_needed(result)
+                display_github_badge()
+                display_logo_and_heading()
 
+                st.markdown("`Made with 🤍 by samadpls`")
+                if "token" not in st.session_state:
+                    result = oauth2.authorize_button(
+                        "Connect with Google",
+                        REDIRECT_URI,
+                        SCOPE,
+                        icon="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 48 48'%3E%3Cdefs%3E%3Cpath id='a' d='M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z'/%3E%3C/defs%3E%3CclipPath id='b'%3E%3Cuse xlink:href='%23a' overflow='visible'/%3E%3C/clipPath%3E%3Cpath clip-path='url(%23b)' fill='%23FBBC05' d='M0 37V11l17 13z'/%3E%3Cpath clip-path='url(%23b)' fill='%23EA4335' d='M0 11l17 13 7-6.1L48 14V0H0z'/%3E%3Cpath clip-path='url(%23b)' fill='%2334A853' d='M0 37l30-23 7.9 1L48 0v48H0z'/%3E%3Cpath clip-path='url(%23b)' fill='%234285F4' d='M48 48L17 24l-4-3 35-10z'/%3E%3C/svg%3E",
+                        use_container_width=True,
+                    )
+                    handle_google_login_if_needed(result)
+        with col3:
+            pass
     else:
         with st.sidebar:
             display_github_badge()
