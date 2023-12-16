@@ -26,10 +26,11 @@ Querypls is a web application that provides an interactive chat interface, simpl
 
 # Acknowledgments
 
-`Querypls` received a shoutout from [🦜 🔗 Langchain](https://www.langchain.com/) on their Twitter, reaching over **60,000 impressions**. Additionally, it was featured under the **Community Favorite Projects** section on `🦜 🔗 Langchain's blog`, leading to a significant increase in stars for this repository and a growing user base.
-| [🔗 Langhchain Twitter Post](https://twitter.com/LangChainAI/status/1729959981523378297?t=Zdpw9ZQYvE3QS-3Bf-xaGw&s=19) | [🔗 Langhcain Blog Post](https://blog.langchain.dev/week-of-11-27-langchain-release-notes/) |
-|----------|----------|
-| [![Twitter Post](https://github.com/samadpls/Querypls/assets/94792103/045519c1-3f50-4d60-ab51-68669ce1f270)](https://twitter.com/LangChainAI/status/1729959981523378297?t=Zdpw9ZQYvE3QS-3Bf-xaGw&s=19) | [![Blog Post](https://github.com/samadpls/Querypls/assets/94792103/3d399715-bfa6-4ee3-a736-e692477c6f31)](https://blog.langchain.dev/week-of-11-27-langchain-release-notes/) |
+`Querypls` received a shoutout from [🦜 🔗 Langchain](https://www.langchain.com/) on their Twitter, reaching over **60,000 impressions**. Additionally, it was featured under the **Community Favorite Projects** section on `🦜 🔗 Langchain's blog`, leading to a significant increase in stars for this repository and a growing user base. The project was also highlighted in a [YouTube video](https://www.youtube.com/watch?v=htHVb-fK9xU), and we are delighted to share that it caught the attention of Backdrop, expressing their interest and liking in an email, inviting the project to be a part of their hackathon.
+
+| [🔗 Langhchain Twitter Post](https://twitter.com/LangChainAI/status/1729959981523378297?t=Zdpw9ZQYvE3QS-3Bf-xaGw&s=19) | [🔗 Langhcain Blog Post](https://blog.langchain.dev/week-of-11-27-langchain-release-notes/) | [🎥 YouTube Video](https://www.youtube.com/watch?v=htHVb-fK9xU) | [Backdrop Hackathon Invitation](https://backdropbuild.com/v2/directory) |
+|----------|----------|----------|----------|
+| [![Twitter Post](https://github.com/samadpls/Querypls/assets/94792103/045519c1-3f50-4d60-ab51-68669ce1f270)](https://twitter.com/LangChainAI/status/1729959981523378297?t=Zdpw9ZQYvE3QS-3Bf-xaGw&s=19) | [![Blog Post](https://github.com/samadpls/Querypls/assets/94792103/3d399715-bfa6-4ee3-a736-e692477c6f31)](https://blog.langchain.dev/week-of-11-27-langchain-release-notes/) | [![YouTube Video](https://img.youtube.com/vi/htHVb-fK9xU/0.jpg)](https://www.youtube.com/watch?v=htHVb-fK9xU) | <img src='https://github.com/samadpls/Querypls/assets/94792103/3e990638-e585-4082-bfc3-398469309dc8' height=250px> |
 > A big thank you to Langchain for their support and recognition!
 
 ---
