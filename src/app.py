@@ -270,7 +270,7 @@ def main():
                 display_github_badge()
                 display_logo_and_heading()
 
-                st.markdown("`Made with 🤍 by samadpls`")
+                st.markdown("`Made with 🤍`")
                 if "token" not in st.session_state:
                     result = oauth2.authorize_button(
                         "Connect with Google",
@@ -288,7 +288,7 @@ def main():
         with st.sidebar:
             display_github_badge()
             display_logo_and_heading()
-            st.markdown("`Made with 🤍 by samadpls`")
+            st.markdown("`Made with 🤍`")
             if st.session_state.code:
                 handle_new_chat(db)
             if st.session_state.code:
