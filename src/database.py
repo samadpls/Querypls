@@ -1,5 +1,6 @@
 import streamlit as st
 
+
 def get_previous_chats(db, user_email):
     """Fetches previous chat records for a user from the database.
 
@@ -36,7 +37,9 @@ def database(db, previous_key="key", previous_chat=None, max_chat_histories=5):
         and previous_key != "key"
     ):
         new_messages = [
-            message for message in previous_chat if message not in existing_chat["chat"]
+            message
+            for message in previous_chat
+            if message not in existing_chat["chat"]
         ]
         existing_chat["chat"].extend(new_messages)
         db.update({"chat": existing_chat["chat"]}, key=previous_key)

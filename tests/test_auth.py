@@ -9,24 +9,31 @@ from src.auth import (
     get_login_str,
 )
 
+
 @pytest.mark.asyncio
 async def test_get_authorization_url():
     client = GoogleOAuth2("client_id", "client_secret")
     redirect_uri = "http://example.com/callback"
-    with patch.object(client, "get_authorization_url", new=AsyncMock()) as mock_method:
+    with patch.object(
+        client, "get_authorization_url", new=AsyncMock()
+    ) as mock_method:
         await get_authorization_url(client, redirect_uri)
         mock_method.assert_called_once_with(
             redirect_uri, scope=["profile", "email"]
         )
+
 
 @pytest.mark.asyncio
 async def test_get_access_token():
     client = GoogleOAuth2("client_id", "client_secret")
     redirect_uri = "http://example.com/callback"
     code = "code"
-    with patch.object(client, "get_access_token", new=AsyncMock()) as mock_method:
+    with patch.object(
+        client, "get_access_token", new=AsyncMock()
+    ) as mock_method:
         await get_access_token(client, redirect_uri, code)
         mock_method.assert_called_once_with(code, redirect_uri)
+
 
 @pytest.mark.asyncio
 async def test_get_email():
@@ -41,6 +48,7 @@ async def test_get_email():
         mock_method.assert_called_once_with(token)
         assert user_id == "user_id"
         assert user_email == "user_email"
+
 
 def test_get_login_str():
     with patch("asyncio.run") as mock_run:

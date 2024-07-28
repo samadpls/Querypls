@@ -1,16 +1,19 @@
 import streamlit as st
 from src.database import database, get_previous_chats
 
+
 def display_logo_and_heading():
     """Displays the Querypls logo."""
     st.image("static/image/logo.png")
+
 
 def display_welcome_message():
     """Displays a welcome message based on user chat history."""
     no_chat_history = len(st.session_state.messages) == 1
     if no_chat_history:
-        st.markdown(f"#### Welcome to \n ## 🛢💬Querypls - Prompt to SQL")
-        
+        st.markdown(f"#### Welcome to \n ## 🗃️💬Querypls - Prompt to SQL")
+
+
 def handle_new_chat(db, max_chat_histories=5):
     """Handles the initiation of a new chat session.
 
@@ -26,11 +29,20 @@ def handle_new_chat(db, max_chat_histories=5):
     remaining_chats = max_chat_histories - len(
         get_previous_chats(db, st.session_state.user_email)
     )
-    st.markdown(f" #### Remaining Chats: `{remaining_chats}/{max_chat_histories}`")
+    st.markdown(
+        f" #### Remaining Chat Histories: \
+        `{remaining_chats}/{max_chat_histories}`"
+    )
+    st.markdown(
+        "You can create up to 5 chat histories. Each history \
+        can contain unlimited messages."
+    )
+
     if st.button("➕ New chat"):
         database(db, previous_key=st.session_state.key)
         create_message()
-        
+
+
 def display_previous_chats(db):
     """Displays previous chat records.
 
@@ -49,7 +61,8 @@ def display_previous_chats(db):
     for chat in reversed_chats:
         if st.button(chat["title"], key=chat["key"]):
             update_session_state(db, chat)
-            
+
+
 def create_message():
     """Creates a default assistant message and initializes a session key."""
 
@@ -58,6 +71,7 @@ def create_message():
     ]
     st.session_state["key"] = "key"
     return
+
 
 def update_session_state(db, chat):
     """Updates the session state with selected chat information.
@@ -74,5 +88,3 @@ def update_session_state(db, chat):
     st.session_state["messages"] = chat["chat"]
     st.session_state["key"] = chat["key"]
     database(db, previous_key, previous_chat)
-
-

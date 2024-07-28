@@ -68,7 +68,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 
 > [!Note]  
-> Querypls, while powered by a 7B model of Satablility AI LLM Model, is currently limited in providing optimal responses for complex queries involving PLSQL or intricate scenarios with multiple table joins.
+> Querypls, while powered by a 7B model of Satablility AI LLM Model, is currently limited in providing optimal responses for simple queries.
 
 ---
 

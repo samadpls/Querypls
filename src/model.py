@@ -1,4 +1,4 @@
-from langchain.llms import HuggingFaceHub
+from langchain_community.llms import HuggingFaceHub
 import sys
 import os
 
@@ -7,6 +7,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.auth import *
 from src.constant import *
+
 
 def create_huggingface_hub():
     """Creates an instance of Hugging Face Hub with specified configurations.
@@ -19,5 +20,3 @@ def create_huggingface_hub():
         repo_id=REPO_ID,
         model_kwargs={"temperature": 0.2, "max_new_tokens": 180},
     )
-
-
