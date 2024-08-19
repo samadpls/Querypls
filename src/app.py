@@ -124,7 +124,7 @@ def main():
                 if st.session_state.messages[-1]["role"] != "assistant":
                     with st.chat_message("assistant"):
                         with st.spinner("Generating..."):
-                            response = llm_chain.invoke("input": prompt,)
+                            response = llm_chain.invoke({"input": prompt})
                             st.markdown(response)
                             message = {
                                 "role": "assistant",
