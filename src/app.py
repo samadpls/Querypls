@@ -125,22 +125,13 @@ def main():
                     with st.chat_message("assistant"):
                         with st.spinner("Generating..."):
                             response = llm_chain.invoke(prompt)
-                            import re
-
-                            code_block_match = re.search(
-                                r"```sql(.*?)```", response, re.DOTALL
-                            )
-                            if code_block_match:
-                                code_block = code_block_match.group(1)
-                                st.markdown(
-                                    f"```sql\n{code_block}\n```",
-                                    unsafe_allow_html=True,
-                                )
-                                message = {
-                                    "role": "assistant",
-                                    "content": f"```sql\n{code_block}\n```",
-                                }
-                                st.session_state.messages.append(message)
+                            st.markdown(response)
+                            message = {
+                                "role": "assistant",
+                                "content": response,
+                            }
+                            st.session_state.messages
+                            
 
 
 if __name__ == "__main__":
