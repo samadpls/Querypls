@@ -112,7 +112,7 @@ def main():
                 st.write(prompt)
 
             prompt_template = PromptTemplate(
-                template=TEMPLATE, input_variables=["input",st.session_state.messages]
+                template=TEMPLATE, input_variables=["input"]
             )
 
             if "model" in st.session_state:
@@ -124,7 +124,7 @@ def main():
                 if st.session_state.messages[-1]["role"] != "assistant":
                     with st.chat_message("assistant"):
                         with st.spinner("Generating..."):
-                            response = llm_chain.invoke(prompt)
+                            response = llm_chain.invoke("input": prompt,)
                             st.markdown(response)
                             message = {
                                 "role": "assistant",
