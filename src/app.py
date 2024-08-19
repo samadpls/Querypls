@@ -112,7 +112,7 @@ def main():
                 st.write(prompt)
 
             prompt_template = PromptTemplate(
-                template=TEMPLATE, input_variables=["question"]
+                template=TEMPLATE, input_variables=["input",st.session_state.messages]
             )
 
             if "model" in st.session_state:
@@ -130,7 +130,7 @@ def main():
                                 "role": "assistant",
                                 "content": response,
                             }
-                            st.session_state.messages
+                            st.session_state.messages.append(message)
                             
 
 
