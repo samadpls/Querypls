@@ -18,5 +18,5 @@ def create_huggingface_hub():
     return HuggingFaceHub(
         huggingfacehub_api_token=HUGGINGFACE_API_TOKEN,
         repo_id=REPO_ID,
-        model_kwargs={"temperature": 0.2, "max_new_tokens": 180},
+        model_kwargs={"temperature": 0.7, "max_new_tokens": 180},
     )
