@@ -125,7 +125,11 @@ def main():
                     with st.chat_message("assistant"):
                         with st.spinner("Generating..."):
                             response = llm_chain.invoke({"input": prompt})
-                            st.markdown(response)
+                            index = response.find("```")
+                            if index != -1:
+                                st.markdown(response[index:])
+                            else:
+                                st.markdown(response)
                             message = {
                                 "role": "assistant",
                                 "content": response,
