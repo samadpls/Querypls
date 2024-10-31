@@ -40,6 +40,12 @@ def format_chat_history(messages):
 
 def extract_sql_code(response):
     """Extract clean SQL code from the response."""
+    start_marker = "You are"
+    end_marker = "any explanations."
+    if start_marker in response:
+        end_pos = response.find(end_marker)
+        if end_pos != -1:
+            response = response[end_pos + len(end_marker):].strip()
     sql_code_start = response.find("```sql")
     if sql_code_start != -1:
         sql_code_end = response.find("```", sql_code_start + 5)
