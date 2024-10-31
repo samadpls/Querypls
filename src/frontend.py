@@ -1,6 +1,4 @@
 import streamlit as st
-from src.database import database, get_previous_chats
-
 
 def display_logo_and_heading():
     """Displays the Querypls logo."""
@@ -14,77 +12,81 @@ def display_welcome_message():
         st.markdown(f"#### Welcome to \n ## 🗃️💬Querypls - Prompt to SQL")
 
 
-def handle_new_chat(db, max_chat_histories=5):
+def handle_new_chat(max_chat_histories=5):
     """Handles the initiation of a new chat session.
 
     Displays the remaining chat history count and provides a button to start a new chat.
 
     Args:
-        db: Deta Base instance.
         max_chat_histories (int, optional): Maximum number of chat histories to retain.
 
     Returns:
         None
     """
-    remaining_chats = max_chat_histories - len(
-        get_previous_chats(db, st.session_state.user_email)
+    remaining_chats = max_chat_histories - len(st.session_state.get("previous_chats", []))
+    st.markdown(
+        f" #### Remaining Chat Histories: `{remaining_chats}/{max_chat_histories}`"
     )
     st.markdown(
-        f" #### Remaining Chat Histories: \
-        `{remaining_chats}/{max_chat_histories}`"
-    )
-    st.markdown(
-        "You can create up to 5 chat histories. Each history \
-        can contain unlimited messages."
+        "You can create up to 5 chat histories. Each history can contain unlimited messages."
     )
 
     if st.button("➕ New chat"):
-        database(db, previous_key=st.session_state.key)
+        save_chat_history()  # Save current chat before creating a new one
         create_message()
 
 
-def display_previous_chats(db):
-    """Displays previous chat records.
+def display_previous_chats():
+    """Displays previous chat records stored in session state.
 
-    Retrieves and displays a list of previous chat records for the user.
     Allows the user to select a chat to view.
-
-    Args:
-        db: Deta Base instance.
-
-    Returns:
-        None
     """
-    previous_chats = get_previous_chats(db, st.session_state.user_email)
-    reversed_chats = reversed(previous_chats)
+    if "previous_chats" in st.session_state:
+        reversed_chats = reversed(st.session_state["previous_chats"])
 
-    for chat in reversed_chats:
-        if st.button(chat["title"], key=chat["key"]):
-            update_session_state(db, chat)
+        for chat in reversed_chats:
+            if st.button(chat["title"], key=chat["key"]):
+                update_session_state(chat)
 
 
 def create_message():
     """Creates a default assistant message and initializes a session key."""
-
     st.session_state["messages"] = [
         {"role": "assistant", "content": "How may I help you?"}
     ]
     st.session_state["key"] = "key"
-    return
 
 
-def update_session_state(db, chat):
+def update_session_state(chat):
     """Updates the session state with selected chat information.
 
     Args:
-        db: Deta Base instance.
         chat (dict): Selected chat information.
-
-    Returns:
-        None
     """
-    previous_chat = st.session_state["messages"]
-    previous_key = st.session_state["key"]
     st.session_state["messages"] = chat["chat"]
     st.session_state["key"] = chat["key"]
-    database(db, previous_key, previous_chat)
+
+
+def save_chat_history():
+    """Saves the current chat to session state if it contains messages."""
+    if "messages" in st.session_state and len(st.session_state["messages"]) > 1:
+        # Initialize previous chats list if it doesn't exist
+        if "previous_chats" not in st.session_state:
+            st.session_state["previous_chats"] = []
+
+        # Create a chat summary to store in session
+        title = st.session_state["messages"][1]["content"]
+        chat_summary = {
+            "title": title[:25] + "....." if len(title) > 25 else title,
+            "chat": st.session_state["messages"],
+            "key": f"chat_{len(st.session_state['previous_chats']) + 1}"
+        }
+
+        st.session_state["previous_chats"].append(chat_summary)
+
+        # Limit chat histories to a maximum number
+        if len(st.session_state["previous_chats"]) > 5:
+            st.session_state["previous_chats"].pop(0)  # Remove oldest chat
+            st.warning(
+                f"The oldest chat history has been removed as you reached the limit of 5 chat histories."
+            )
