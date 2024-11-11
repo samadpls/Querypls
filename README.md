@@ -17,8 +17,6 @@ Querypls is a web application that provides an interactive chat interface, simpl
 🔍 Enter SQL queries and receive query results as responses.  
 🤖 Utilizes language models from Hugging Face for advanced query generation ([Querypls-prompt2sql](https://huggingface.co/samadpls/querypls-prompt2sql)).  
 💻 User-friendly interface for seamless interaction.  
-🔒 Secure Google Authentication for OAuth2 integration.  
-🔄 Chat history recording for easy reference.
 
 ![QueryplsDemo](https://github.com/samadpls/Querypls/assets/94792103/daa6e37d-a256-4fd8-9607-6e18cf41df3f)
 
