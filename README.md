@@ -33,6 +33,13 @@ Querypls is a web application that provides an interactive chat interface, simpl
 [![YouTube Video](https://img.youtube.com/vi/htHVb-fK9xU/0.jpg)](https://www.youtube.com/watch?v=htHVb-fK9xU) | <img src='https://github.com/samadpls/Querypls/assets/94792103/3e990638-e585-4082-bfc3-398469309dc8' height=400px> |
 > A big thank you to Langchain for their support and recognition!
 
+## License
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+
+> [!Note]  
+> Querypls, while powered by a 7B model of Satablility AI LLM Model, is currently limited in providing optimal responses for simple queries.
+
 ---
 
 ## How to Contribute
@@ -60,13 +67,6 @@ Querypls is a web application that provides an interactive chat interface, simpl
     ```
 
 6. Open the provided link in your browser to use Querypls.
-
-## License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-
-> [!Note]  
-> Querypls, while powered by a 7B model of Satablility AI LLM Model, is currently limited in providing optimal responses for simple queries.
 
 ---
 
