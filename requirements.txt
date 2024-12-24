@@ -29,7 +29,7 @@ huggingface-hub==0.23.4
 idna==3.7
 importlib-metadata==6.11.0
 iniconfig==2.0.0
-Jinja2==3.1.4
+Jinja2==3.1.5
 joblib==1.4.2
 jsonpatch==1.33
 jsonpointer==3.0.0
