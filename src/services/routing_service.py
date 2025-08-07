@@ -75,8 +75,9 @@ class IntelligentRoutingService:
             return result.output
 
         except Exception as e:
-            # Fallback to simple keyword-based routing
-            return self._fallback_routing(user_query, csv_loaded)
+            print(f"Routing failed with error: {e}")
+            # Use simple keyword-based routing as fallback
+            return self._keyword_based_routing(user_query, csv_loaded)
 
     def handle_conversation_query(self, user_query: str) -> str:
         """Handle conversational queries."""
@@ -131,7 +132,7 @@ class IntelligentRoutingService:
 
         except Exception as e:
             # If LLM fails, provide a graceful response without showing errors
-            return WORST_CASE_SCENARIO 
+            return WORST_CASE_SCENARIO
 
     def _execute_csv_analysis(
         self, python_code: str, csv_info: Dict[str, Any], explanation: str
@@ -224,15 +225,15 @@ install_package('seaborn')
                             current_code = fixed_code
                             continue  # Try again with fixed code
 
-                    return WORST_CASE_SCENARIO 
+                    return WORST_CASE_SCENARIO
 
         except Exception as e:
-            return WORST_CASE_SCENARIO 
+            return WORST_CASE_SCENARIO
 
         except Exception as e:
-            return WORST_CASE_SCENARIO 
+            return WORST_CASE_SCENARIO
 
-        return WORST_CASE_SCENARIO 
+        return WORST_CASE_SCENARIO
 
     def _fix_python_code(
         self, original_code: str, error_message: str, csv_info: Dict[str, Any]
@@ -375,6 +376,68 @@ install_package('seaborn')
 
         return "\n\n".join(response_parts)
 
+    def _keyword_based_routing(self, user_query: str, csv_loaded: bool) -> RoutingDecision:
+        """Keyword-based routing when LLM routing fails."""
+        query_lower = user_query.lower()
+        
+        # CSV Agent keywords
+        csv_keywords = [
+            "csv", "analyze", "chart", "plot", "graph", "average", "mean", "sum", 
+            "count", "max", "min", "statistics", "data", "visualization", "top", 
+            "bottom", "highest", "lowest", "distribution", "correlation"
+        ]
+        
+        # SQL Agent keywords  
+        sql_keywords = [
+            "select", "insert", "update", "delete", "sql", "query", "table", 
+            "database", "users", "customers", "orders", "products", "where", 
+            "join", "group by", "order by", "from"
+        ]
+        
+        # Conversation Agent keywords
+        conversation_keywords = [
+            "hello", "hi", "hey", "how are you", "what can you do", "help", 
+            "thanks", "thank you", "goodbye", "bye", "good morning", "good evening"
+        ]
+        
+        # Check for CSV analysis (prioritize if CSV is loaded)
+        if csv_loaded and any(keyword in query_lower for keyword in csv_keywords):
+            return RoutingDecision(
+                agent="CSV_AGENT",
+                confidence=0.8,
+                reasoning="Keyword-based routing detected CSV analysis request"
+            )
+        
+        # Check for SQL keywords
+        if any(keyword in query_lower for keyword in sql_keywords):
+            return RoutingDecision(
+                agent="SQL_AGENT", 
+                confidence=0.8,
+                reasoning="Keyword-based routing detected SQL request"
+            )
+        
+        # Check for conversation keywords
+        if any(keyword in query_lower for keyword in conversation_keywords):
+            return RoutingDecision(
+                agent="CONVERSATION_AGENT",
+                confidence=0.9,
+                reasoning="Keyword-based routing detected conversation request"
+            )
+        
+        # Default based on context
+        if csv_loaded:
+            return RoutingDecision(
+                agent="CSV_AGENT",
+                confidence=0.6, 
+                reasoning="CSV loaded, defaulting to CSV analysis"
+            )
+        else:
+            return RoutingDecision(
+                agent="CONVERSATION_AGENT",
+                confidence=0.5,
+                reasoning="No clear intent detected, defaulting to conversation"
+            )
+
     def _fallback_routing(self, user_query: str, csv_loaded: bool) -> RoutingDecision:
         """Fallback routing when LLM routing fails - let LLM decide, not hardcoded keywords."""
         # Default to conversation - let the LLM handle all decisions
@@ -386,4 +449,4 @@ install_package('seaborn')
 
     def _get_fallback_conversation_response(self, user_query: str) -> str:
         """Get fallback conversation response when LLM fails."""
-        return WORST_CASE_SCENARIO 
+        return WORST_CASE_SCENARIO
