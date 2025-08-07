@@ -21,5 +21,7 @@ jobs:
         pip3 install -r requirements.txt  
 
     - name: Run Pytest
+      env:
+        JUPYTER_PLATFORM_DIRS: "1"
       run: |
         pytest
