@@ -114,12 +114,16 @@ It must be an object and must contain these fields:
 ## IMPORTANT: The code you generate will be EXECUTED automatically. Do NOT include code blocks or markdown formatting in the python_code field.
 
 ## CRITICAL GUIDELINES:
-1. **KEEP CODE SIMPLE** - Maximum 10 lines of code
+1. **KEEP CODE SIMPLE** - Maximum 6 lines of code
 2. **ANSWER THE SPECIFIC QUESTION** - Don't create comprehensive analysis
 3. **PRINT CLEAR INSIGHTS** - Human-readable output, not raw data
 4. **NO COMPLEX SCRIPTS** - No functions, classes, or advanced features
 5. **SIMPLE VARIABLES** - Use df, result, avg, etc.
 6. **DIRECT APPROACH** - Load data, analyze, print result
+7. **NO SPECIAL CHARACTERS** - Avoid ≥, ≤, →, etc. Use standard ASCII
+8. **SIMPLE LOGIC** - No complex conditionals or loops
+9. **NO FUNCTIONS** - Write code directly, not inside functions
+10. **NO DOCSTRINGS** - No complex documentation
 
 ## CRITICAL Code Requirements:
 - The CSV data is available as a file at the path provided in the context
@@ -137,7 +141,7 @@ It must be an object and must contain these fields:
 
 ## Example Response
 {
-  "python_code": "import pandas as pd\\n\\n# Load data\\ndf = pd.read_csv('/tmp/querypls_session_xxx/data.csv')\\n\\n# Calculate average salary\\navg_salary = df['salary'].mean()\\nprint(f'Average salary: ${avg_salary:,.2f}')",
+  "python_code": "import pandas as pd\\ndf = pd.read_csv('/tmp/querypls_session_xxx/data.csv')\\navg = df['salary'].mean()\\nprint(f'Average salary: ${avg:,.2f}')",
   "explanation": "Loads CSV data and calculates the average salary in a readable format",
   "expected_output": "Average salary: $60,000.00",
   "libraries_used": ["pandas"]
@@ -145,7 +149,7 @@ It must be an object and must contain these fields:
 
 ## Chart Example Response
 {
-  "python_code": "import pandas as pd\\nimport matplotlib.pyplot as plt\\nimport os\\n\\n# Create temp directory\\nos.makedirs('/tmp/querypls_session_csv_analysis_temp', exist_ok=True)\\n\\n# Load data\\ndf = pd.read_csv('/tmp/querypls_session_xxx/data.csv')\\n\\n# Create chart\\nplt.figure(figsize=(8, 6))\\ndf['department'].value_counts().plot(kind='bar')\\nplt.title('Department Distribution')\\nplt.savefig('/tmp/querypls_session_csv_analysis_temp/department_chart.png')\\nplt.show()\\n\\n# Print results\\nprint('Department counts:')\\nprint(df['department'].value_counts())",
+  "python_code": "import pandas as pd\\nimport matplotlib.pyplot as plt\\nimport os\\nos.makedirs('/tmp/querypls_session_csv_analysis_temp', exist_ok=True)\\ndf = pd.read_csv('/tmp/querypls_session_xxx/data.csv')\\nplt.figure(figsize=(8, 6))\\ndf['department'].value_counts().plot(kind='bar')\\nplt.title('Department Distribution')\\nplt.savefig('/tmp/querypls_session_csv_analysis_temp/department_chart.png')\\nplt.show()\\nprint('Department counts:')\\nprint(df['department'].value_counts())",
   "explanation": "Creates a bar chart of department distribution and saves it to specific temp folder",
   "expected_output": "Bar chart visualization and department counts",
   "libraries_used": ["pandas", "matplotlib.pyplot"]
@@ -153,10 +157,18 @@ It must be an object and must contain these fields:
 
 ## Graph Example Response
 {
-  "python_code": "import pandas as pd\\nimport matplotlib.pyplot as plt\\nimport os\\n\\n# Create temp directory\\nos.makedirs('/tmp/querypls_session_csv_analysis_temp', exist_ok=True)\\n\\n# Load data\\ndf = pd.read_csv('/tmp/querypls_session_xxx/data.csv')\\n\\n# Create simple bar chart\\nplt.figure(figsize=(8, 6))\\ndf['department'].value_counts().plot(kind='bar')\\nplt.title('Department Distribution')\\nplt.savefig('/tmp/querypls_session_csv_analysis_temp/department_chart.png')\\nplt.show()\\n\\n# Print summary\\nprint('Department distribution:')\\nprint(df['department'].value_counts())",
+  "python_code": "import pandas as pd\\nimport matplotlib.pyplot as plt\\nimport os\\nos.makedirs('/tmp/querypls_session_csv_analysis_temp', exist_ok=True)\\ndf = pd.read_csv('/tmp/querypls_session_xxx/data.csv')\\nplt.figure(figsize=(8, 6))\\ndf['department'].value_counts().plot(kind='bar')\\nplt.title('Department Distribution')\\nplt.savefig('/tmp/querypls_session_csv_analysis_temp/department_chart.png')\\nplt.show()\\nprint('Department distribution:')\\nprint(df['department'].value_counts())",
   "explanation": "Creates a simple bar chart showing department distribution",
   "expected_output": "Bar chart and department counts",
   "libraries_used": ["pandas", "matplotlib.pyplot"]
+}
+
+## Price Analysis Example Response
+{
+  "python_code": "import pandas as pd\\ndf = pd.read_csv('/tmp/querypls_session_xxx/data.csv')\\navg_price = df['price'].mean()\\nprint(f'Average price: ${avg_price:,.2f}')",
+  "explanation": "Loads CSV data and calculates the average price in a readable format",
+  "expected_output": "Average price: $1,234.56",
+  "libraries_used": ["pandas"]
 }
 
 ## Important Notes:

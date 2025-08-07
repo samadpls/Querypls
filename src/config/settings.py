@@ -17,19 +17,15 @@ class Settings(BaseModel):
     debug_mode: bool = Field(default=False, env="DEBUG_MODE")
 
     # Legacy fields for backward compatibility
-    app_name: Optional[str] = Field(None, env="APP_NAME")
-    streamlit_port: Optional[str] = Field(None, env="STREAMLIT_PORT")
-    streamlit_host: Optional[str] = Field(None, env="STREAMLIT_HOST")
-    max_tokens: Optional[str] = Field(None, env="MAX_TOKENS")
-    temperature: Optional[str] = Field(None, env="TEMPERATURE")
-    log_level: Optional[str] = Field(None, env="LOG_LEVEL")
+    max_tokens: Optional[str] = Field(1000, env="MAX_TOKENS")
+    temperature: Optional[str] = Field(0.7, env="TEMPERATURE")
+    log_level: Optional[str] = Field("INFO", env="LOG_LEVEL")
 
     json_schema_extra: ClassVar[str] = "ignore"
 
     model_config = ConfigDict(
         env_file = ".env",
         env_file_encoding = "utf-8",
-        # Add any necessary configuration here
     )
 
 

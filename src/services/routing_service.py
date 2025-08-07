@@ -111,7 +111,7 @@ class IntelligentRoutingService:
         self,
         user_query: str,
         csv_info: Dict[str, Any],
-        conversation_history: List[ChatMessage] = None,
+        conversation_history: Optional[List[ChatMessage]] = None,
     ) -> str:
         """Handle CSV analysis queries."""
         try:
@@ -130,35 +130,13 @@ class IntelligentRoutingService:
                 return "I'm sorry, I couldn't generate analysis code for that request. Could you please rephrase your question?"
 
         except Exception as e:
-            # Provide a simple fallback analysis when LLM fails
-            try:
-                import pandas as pd
-                df = pd.read_csv(csv_info['file_path'])
-                
-                # Basic analysis based on the query
-                if "average" in user_query.lower() or "mean" in user_query.lower():
-                    if "salary" in user_query.lower() and "salary" in df.columns:
-                        avg = df['salary'].mean()
-                        return f"**Analysis Results:**\n\nAverage salary: ${avg:,.2f}\n\n**Explanation:** Calculated the average salary from the data."
-                    else:
-                        numeric_cols = df.select_dtypes(include=['number']).columns
-                        if len(numeric_cols) > 0:
-                            avg = df[numeric_cols[0]].mean()
-                            return f"**Analysis Results:**\n\nAverage {numeric_cols[0]}: {avg:,.2f}\n\n**Explanation:** Calculated the average of {numeric_cols[0]} from the data."
-                
-                elif "graph" in user_query.lower() or "chart" in user_query.lower():
-                    return f"**Analysis Results:**\n\nChart generation is currently unavailable. Here's a data summary:\n\n{df.describe()}\n\n**Explanation:** Basic data overview due to service unavailability."
-                
-                else:
-                    return f"**Analysis Results:**\n\nData overview:\n- Records: {len(df)}\n- Columns: {list(df.columns)}\n\nFirst few rows:\n{df.head()}\n\n**Explanation:** Basic data overview due to service unavailability."
-                    
-            except Exception as fallback_error:
-                return f"I encountered an error while generating CSV analysis code: {str(e)}\n\nFallback also failed: {str(fallback_error)}"
+            # If LLM fails, provide a graceful response without showing errors
+            return "I'm here to help! I can assist with SQL generation or CSV data analysis. What would you like to do?"
 
     def _execute_csv_analysis(
         self, python_code: str, csv_info: Dict[str, Any], explanation: str
     ) -> str:
-        """Execute CSV analysis code using Jupyter service."""
+        """Execute CSV analysis code using Jupyter service with error fixing retry loop."""
         try:
             from src.services.jupyter_service import CSVAnalysisService
 
@@ -194,55 +172,88 @@ install_package('seaborn')
                 session_id, install_code, max_retries=1
             )
 
-            # Execute the analysis code directly (it will read from the file path)
-            result = jupyter_service.execute_analysis(
-                session_id, python_code, max_retries=1
-            )
+            # Retry loop for code execution with error fixing
+            current_code = python_code
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+                # Execute the current code
+                result = jupyter_service.execute_analysis(
+                    session_id, current_code, max_retries=1
+                )
 
-            if result["status"] == "success":
-                output = result.get("output", "")
-                
-                # If output is empty, provide a fallback
-                if not output.strip():
-                    output = "Analysis completed successfully but no output was generated."
+                if result["status"] == "success":
+                    output = result.get("output", "")
+                    
+                    # If output is empty, provide a fallback
+                    if not output.strip():
+                        output = "Analysis completed successfully but no output was generated."
 
-                # Check if any images were created in the specific session directory
-                import os
-                import glob
-                
-                # Look for images in the session's temp directory
-                session_temp_dir = f"/tmp/querypls_session_csv_analysis_temp"
-                image_files = []
-                
-                if os.path.exists(session_temp_dir):
-                    png_files = glob.glob(os.path.join(session_temp_dir, "*.png"))
-                    jpg_files = glob.glob(os.path.join(session_temp_dir, "*.jpg"))
-                    image_files.extend(png_files + jpg_files)
+                    # Check if any images were created in the specific session directory
+                    import os
+                    import glob
+                    
+                    # Look for images in the session's temp directory
+                    session_temp_dir = f"/tmp/querypls_session_csv_analysis_temp"
+                    image_files = []
+                    
+                    if os.path.exists(session_temp_dir):
+                        png_files = glob.glob(os.path.join(session_temp_dir, "*.png"))
+                        jpg_files = glob.glob(os.path.join(session_temp_dir, "*.jpg"))
+                        image_files.extend(png_files + jpg_files)
 
-                if image_files:
-                    image_info = "\n\n**Generated Images:**\n"
-                    for img_file in image_files:
-                        image_info += f"- {os.path.basename(img_file)}\n"
-                    output += image_info
+                    if image_files:
+                        image_info = "\n\n**Generated Images:**\n"
+                        for img_file in image_files:
+                            image_info += f"- {os.path.basename(img_file)}\n"
+                        output += image_info
 
-                return f"""**Analysis Results:**
+                    return f"""**Analysis Results:**
 
 {output}
 
 **Explanation:** {explanation}"""
-            else:
-                error_msg = result.get("error_message", "Unknown error")
-                # Add debugging information
-                debug_info = f"""
-**Debug Information:**
-- Generated Code: {python_code[:200]}...
-- Error: {error_msg}
-- CSV File: {csv_info['file_path']}
-"""
-                return f"❌ Error executing analysis: {error_msg}\n{debug_info}"
+                
+                else:
+                    # Code execution failed - try to fix it
+                    error_msg = result.get("error_message", "Unknown error")
+                    
+                    if attempt < max_retries - 1:  # Not the last attempt
+                        # Send error to LLM to fix the code
+                        fixed_code = self._fix_python_code(current_code, error_msg, csv_info)
+                        if fixed_code:
+                            current_code = fixed_code
+                            continue  # Try again with fixed code
+                    
+                    # If we reach here, all attempts failed or no more retries
+                    return "I'm here to help! I can assist with SQL generation or CSV data analysis. What would you like to do?"
 
         except Exception as e:
-            return f"❌ Error in CSV analysis: {str(e)}"
+            return "I'm here to help! I can assist with SQL generation or CSV data analysis. What would you like to do?"
+
+        except Exception as e:
+            return "I'm here to help! I can assist with SQL generation or CSV data analysis. What would you like to do?"
+
+        # This should never be reached, but just in case
+        return "I'm here to help! I can assist with SQL generation or CSV data analysis. What would you like to do?"
+
+    def _fix_python_code(self, original_code: str, error_message: str, csv_info: Dict[str, Any]) -> Optional[str]:
+        """Send error to LLM to fix the Python code."""
+        try:
+            # Create context for code fixing
+            context = self._prepare_code_fix_context(original_code, error_message, csv_info)
+            
+            # Use the CSV agent to generate fixed code
+            result = self.csv_agent.run_sync(context)
+            
+            if hasattr(result.output, "python_code"):
+                return result.output.python_code
+            else:
+                return None
+                
+        except Exception as e:
+            # If fixing fails, return None to continue with original code
+            return None
 
     def _prepare_routing_context(
         self, user_query: str, conversation_history: List[ChatMessage], csv_loaded: bool
@@ -281,7 +292,7 @@ install_package('seaborn')
         self,
         user_query: str,
         csv_info: Dict[str, Any],
-        conversation_history: List[ChatMessage] = None,
+        conversation_history: Optional[List[ChatMessage]] = None,
     ) -> str:
         """Prepare context for CSV analysis."""
         context_parts = [
@@ -321,6 +332,34 @@ install_package('seaborn')
         
         return "\n".join(context_parts)
 
+    def _prepare_code_fix_context(self, original_code: str, error_message: str, csv_info: Dict[str, Any]) -> str:
+        """Prepare context for code fixing."""
+        context_parts = [
+            "CODE FIXING REQUEST:",
+            f"Original Code: {original_code}",
+            f"Error Message: {error_message}",
+            f"CSV File Path: {csv_info['file_path']}",
+            f"CSV Shape: {csv_info['shape']}",
+            f"CSV Columns: {csv_info['columns']}",
+            f"CSV Data Types: {csv_info['dtypes']}",
+            f"CSV Sample Data: {csv_info['sample_data']}",
+            "",
+            "INSTRUCTIONS:",
+            "The above Python code failed to execute. Please fix the code and return a working version.",
+            "Follow these guidelines:",
+            "1. Keep code SIMPLE - Maximum 6 lines",
+            "2. NO SPECIAL CHARACTERS - Use standard ASCII only",
+            "3. NO FUNCTIONS - Write code directly",
+            "4. NO DOCSTRINGS - No complex documentation",
+            "5. Use pd.read_csv('file_path') to load data",
+            "6. Print human-readable insights directly",
+            "7. For charts, save to /tmp/querypls_session_csv_analysis_temp/",
+            "",
+            "Generate fixed Python code that will execute without errors."
+        ]
+        
+        return "\n".join(context_parts)
+
     def _format_sql_response(self, sql_response) -> str:
         """Format SQL response for display."""
         response_parts = [
@@ -351,119 +390,14 @@ install_package('seaborn')
         return "\n\n".join(response_parts)
 
     def _fallback_routing(self, user_query: str, csv_loaded: bool) -> RoutingDecision:
-        """Fallback routing based on simple keyword matching."""
-        query_lower = user_query.lower().strip()
-
-        # Conversation keywords
-        conversation_keywords = [
-            "hi",
-            "hello",
-            "hey",
-            "good morning",
-            "good afternoon",
-            "good evening",
-            "how are you",
-            "what's up",
-            "thanks",
-            "thank you",
-            "bye",
-            "goodbye",
-            "help",
-            "what can you do",
-            "who are you",
-            "tell me about yourself",
-        ]
-
-        # CSV keywords
-        csv_keywords = [
-            "csv",
-            "data",
-            "analyze",
-            "analysis",
-            "chart",
-            "graph",
-            "plot",
-            "visualize",
-            "pandas",
-            "matplotlib",
-            "seaborn",
-            "python",
-            "code",
-            "file",
-            "average",
-            "mean",
-            "sum",
-            "count",
-            "salary",
-            "column",
-            "row",
-            "statistics",
-            "stats",
-            "distribution",
-            "correlation",
-            "histogram",
-            "bar",
-            "line",
-            "scatter",
-        ]
-
-        # SQL keywords
-        sql_keywords = [
-            "select",
-            "from",
-            "where",
-            "join",
-            "table",
-            "database",
-            "query",
-            "sql",
-            "insert",
-            "update",
-            "delete",
-            "create",
-            "alter",
-            "drop",
-        ]
-
-        if any(keyword in query_lower for keyword in conversation_keywords):
-            return RoutingDecision(
-                agent="CONVERSATION_AGENT",
-                confidence=0.8,
-                reasoning="Detected conversational keywords",
-            )
-        elif csv_loaded and any(keyword in query_lower for keyword in csv_keywords):
-            return RoutingDecision(
-                agent="CSV_AGENT",
-                confidence=0.7,
-                reasoning="CSV data loaded and detected CSV-related keywords",
-            )
-        elif any(keyword in query_lower for keyword in sql_keywords):
-            return RoutingDecision(
-                agent="SQL_AGENT",
-                confidence=0.7,
-                reasoning="Detected SQL-related keywords",
-            )
-        else:
-            # Default to conversation for unknown queries
-            return RoutingDecision(
-                agent="CONVERSATION_AGENT",
-                confidence=0.5,
-                reasoning="No specific keywords detected, defaulting to conversation",
-            )
+        """Fallback routing when LLM routing fails - let LLM decide, not hardcoded keywords."""
+        # Default to conversation - let the LLM handle all decisions
+        return RoutingDecision(
+            agent="CONVERSATION_AGENT",
+            confidence=0.3,
+            reasoning="LLM routing failed, defaulting to conversation agent",
+        )
 
     def _get_fallback_conversation_response(self, user_query: str) -> str:
-        """Get fallback conversation response. Wish it dont be here."""
-        query_lower = user_query.lower().strip()
-
-        if any(greeting in query_lower for greeting in ["hi", "hello", "hey"]):
-            return "Hello! 👋 I'm Querypls, your SQL and data analysis assistant. I can help you generate SQL queries or analyze CSV files. What would you like to work on today?"
-        elif "how are you" in query_lower:
-            return "I'm doing great, thank you for asking! 😊 I'm ready to help you with SQL queries or CSV data analysis. What can I assist you with?"
-        elif any(thanks in query_lower for thanks in ["thanks", "thank you"]):
-            return "You're welcome! 😊 Is there anything else I can help you with?"
-        elif any(bye in query_lower for bye in ["bye", "goodbye"]):
-            return "Goodbye! 👋 Feel free to come back if you need help with SQL or data analysis."
-        elif "help" in query_lower or "what can you do" in query_lower:
-            return "I'm Querypls, your data analysis companion! 🗃️💬 I can help you with SQL generation and CSV data analysis. Just upload a CSV file or ask me to write SQL queries!"
-        else:
-            return "I'm here to help! I can assist with SQL generation or CSV data analysis. What would you like to do?"
+        """Get fallback conversation response when LLM fails."""
+        return "I'm here to help! I can assist with SQL generation or CSV data analysis. What would you like to do?"
