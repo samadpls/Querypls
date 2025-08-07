@@ -139,9 +139,7 @@ def create_csv_analysis_agent() -> Agent:
     ) -> str:
         result = csv_tools.load_csv_data(csv_content, session_id)
         if result["status"] == "success":
-            return f"CSV loaded successfully! Shape: {
-                result['shape']}, Columns: {
-                result['columns']}"
+            return f"CSV loaded successfully! Shape: {result['shape']}, Columns: {result['columns']}"
         else:
             return f"Error loading CSV: {result['message']}"
 

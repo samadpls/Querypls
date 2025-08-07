@@ -203,16 +203,13 @@ install_package('seaborn')
                         image_files.extend(png_files + jpg_files)
 
                     if image_files:
-                        image_info = "\n\n**Generated Images:**\n"
+                        image_info = "\n\n📊 **Charts generated:**\n"
                         for img_file in image_files:
                             image_info += f"- {os.path.basename(img_file)}\n"
                         output += image_info
 
-                    return f"""**Analysis Results:**
-
-{output}
-
-**Explanation:** {explanation}"""
+                    # Return only the human-readable output, not technical details
+                    return output.strip()
 
                 else:
                     # Code execution failed - try to fix it
@@ -313,20 +310,20 @@ install_package('seaborn')
                 context_parts.append(f"- {msg.role}: {msg.content}")
 
         context_parts.append(
-            "\nGenerate SIMPLE Python code that directly answers the user's question."
+            "\nGenerate SUPER SIMPLE Python code that directly answers the user's question."
         )
-        context_parts.append("MAXIMUM 10 LINES OF CODE - Keep it simple!")
+        context_parts.append("MAXIMUM 5 LINES OF CODE - Keep it extremely simple!")
         context_parts.append(
-            "NO COMPREHENSIVE ANALYSIS - Just answer the specific question!"
+            "NO FUNCTIONS OR CLASSES - Just direct code that prints results!"
         )
         context_parts.append(
             f"IMPORTANT: Use pd.read_csv('{csv_info['file_path']}') to load the data from the file path!"
         )
         context_parts.append(
-            "Print human-readable insights directly - no complex scripts!"
+            "Print human-readable results like 'Average price: $123.45' - NO technical output!"
         )
         context_parts.append(
-            "For charts, use plt.savefig('/tmp/querypls_session_csv_analysis_temp/chart_name.png') and plt.show()."
+            "For charts, use plt.savefig('/tmp/querypls_session_csv_analysis_temp/chart.png') and plt.show()."
         )
 
         return "\n".join(context_parts)
@@ -375,17 +372,6 @@ install_package('seaborn')
 
         if sql_response.warnings:
             response_parts.append(f"**Warnings:** {', '.join(sql_response.warnings)}")
-
-        return "\n\n".join(response_parts)
-
-    def _format_csv_response(self, csv_response) -> str:
-        """Format CSV analysis response for display."""
-        response_parts = [
-            f"**Python Code:**\n```python\n{csv_response.python_code}\n```",
-            f"**Explanation:** {csv_response.explanation}",
-            f"**Expected Output:** {csv_response.expected_output}",
-            f"**Libraries Used:** {', '.join(csv_response.libraries_used)}",
-        ]
 
         return "\n\n".join(response_parts)
 
