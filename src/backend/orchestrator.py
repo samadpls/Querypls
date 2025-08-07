@@ -7,33 +7,21 @@ from datetime import datetime
 from typing import List, Optional, Dict, Any
 from dataclasses import dataclass
 
-from config.settings import get_settings
-from config.constants import (
-    WELCOME_MESSAGE,
-    DEFAULT_SESSION_NAME,
-    CSV_LOAD_ERROR,
-    CSV_ANALYSIS_ERROR,
-    SESSION_CREATE_ERROR,
-    ORCHESTRATOR_INIT_ERROR,
-    SESSION_NOT_FOUND_ERROR,
-    RESPONSE_GENERATION_ERROR,
-    MESSAGE_LOAD_ERROR,
-    MAX_CHAT_HISTORIES,
-)
-from services.sql_service import SQLGenerationService
-from services.csv_analysis_tools import CSVAnalysisTools, create_csv_analysis_agent
-from services.conversation_service import ConversationService
-from services.routing_service import IntelligentRoutingService
-from schemas.requests import (
+from src.config.settings import get_settings
+from src.config.constants import WELCOME_MESSAGE, DEFAULT_SESSION_NAME
+from src.services.sql_service import SQLGenerationService
+from src.services.csv_analysis_tools import CSVAnalysisTools, create_csv_analysis_agent
+from src.services.conversation_service import ConversationService
+from src.services.routing_service import IntelligentRoutingService
+from src.schemas.requests import (
     SQLGenerationRequest,
     ChatMessage,
     ConversationHistory,
     NewChatRequest,
 )
-from schemas.responses import (
+from src.schemas.responses import (
     ChatResponse,
     SessionInfo,
-    ErrorResponse,
     HealthCheckResponse,
 )
 
@@ -65,10 +53,8 @@ class BackendOrchestrator:
 
         messages = []
         if request.initial_context:
-            messages.append(
-                ChatMessage(
-                    role="system",
-                    content=request.initial_context))
+            messages.append(ChatMessage(
+                role="system", content=request.initial_context))
 
         messages.append(ChatMessage(role="assistant", content=WELCOME_MESSAGE))
 
@@ -113,8 +99,7 @@ class BackendOrchestrator:
             return True
         return False
 
-    def load_csv_data(self, session_id: str,
-                      csv_content: str) -> Dict[str, Any]:
+    def load_csv_data(self, session_id: str, csv_content: str) -> Dict[str, Any]:
         session = self.get_session(session_id)
         if not session:
             raise ValueError(f"Session {session_id} not found")
@@ -134,9 +119,8 @@ class BackendOrchestrator:
             raise ValueError(f"Session {session_id} not found")
 
         user_message = ChatMessage(
-            role="user",
-            content=user_query,
-            timestamp=datetime.now().isoformat())
+            role="user", content=user_query, timestamp=datetime.now().isoformat()
+        )
         session.messages.append(user_message)
 
         # Determine which agent should handle this query
@@ -157,7 +141,7 @@ class BackendOrchestrator:
         elif routing_decision.agent == "CSV_AGENT":
             if session.csv_data:
                 response_content = self.routing_service.handle_csv_query(
-                    user_query, session.csv_data
+                    user_query, session.csv_data, session.messages
                 )
             else:
                 response_content = "I don't see any CSV data loaded. Please upload a CSV file first to analyze it."
@@ -187,9 +171,7 @@ class BackendOrchestrator:
         if not session:
             raise ValueError(f"Session {session_id} not found")
 
-        return ConversationHistory(
-            messages=session.messages,
-            session_id=session_id)
+        return ConversationHistory(messages=session.messages, session_id=session_id)
 
     def get_csv_info(self, session_id: str) -> Dict[str, Any]:
         return self.csv_tools.get_csv_info(session_id)

@@ -6,8 +6,8 @@ from pydantic_ai.models.groq import GroqModel
 from pydantic_ai.providers.groq import GroqProvider
 from pydantic import BaseModel, Field
 
-from config.settings import get_settings
-from services.jupyter_service import CSVAnalysisService
+from src.config.settings import get_settings
+from src.services.jupyter_service import CSVAnalysisService
 from utils.prompt import CSV_ANALYSIS_PROMPT, CODE_FIX_PROMPT, CSV_AGENT_PROMPT
 
 
@@ -65,8 +65,7 @@ class CSVAnalysisTools:
             output_type=PythonCodeResponse,
         )
 
-    def load_csv_data(self, csv_content: str,
-                      session_id: str) -> Dict[str, Any]:
+    def load_csv_data(self, csv_content: str, session_id: str) -> Dict[str, Any]:
         return self.csv_service.load_csv_data(session_id, csv_content)
 
     def generate_analysis_code(
@@ -102,10 +101,8 @@ Generate Python code that:
         )
 
     def fix_code_error(
-            self,
-            original_code: str,
-            error_message: str,
-            csv_context: CSVAnalysisContext) -> PythonCodeResponse:
+        self, original_code: str, error_message: str, csv_context: CSVAnalysisContext
+    ) -> PythonCodeResponse:
         prompt = f"""
 Original Code:
 {original_code}
@@ -133,9 +130,9 @@ def create_csv_analysis_agent() -> Agent:
     settings = get_settings()
 
     model = GroqModel(
-        settings.groq_model_name,
-        provider=GroqProvider(
-            api_key=settings.groq_api_key))
+        settings.groq_model_name, provider=GroqProvider(
+            api_key=settings.groq_api_key)
+    )
 
     agent = Agent(model, instructions=CSV_AGENT_PROMPT, output_type=str)
 
@@ -201,10 +198,8 @@ Output:
 
     @agent.tool
     async def fix_code_error(
-            ctx: RunContext[None],
-            original_code: str,
-            error_message: str,
-            session_id: str) -> str:
+        ctx: RunContext[None], original_code: str, error_message: str, session_id: str
+    ) -> str:
         csv_info = csv_tools.get_csv_info(session_id)
         if csv_info["status"] != "success":
             return f"Error: {csv_info['message']}"

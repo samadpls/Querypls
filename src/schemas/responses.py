@@ -83,5 +83,4 @@ class HealthCheckResponse(BaseModel):
     version: str = Field(..., description="Application version")
     timestamp: str = Field(..., description="Health check timestamp")
     services: dict = Field(
-        default={},
-        description="Status of individual services")
+        default={}, description="Status of individual services")

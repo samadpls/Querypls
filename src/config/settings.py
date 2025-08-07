@@ -13,8 +13,7 @@ from src.config.constants import AVAILABLE_MODELS
 class Settings(BaseSettings):
     groq_api_key: str = Field(..., env="GROQ_API_KEY")
     groq_model_name: str = Field(
-        default="openai/gpt-oss-120b",
-        env="GROQ_MODEL_NAME")
+        default="openai/gpt-oss-120b", env="GROQ_MODEL_NAME")
     app_version: str = Field(default="1.0.0", env="APP_VERSION")
     max_chat_histories: int = Field(default=5, env="MAX_CHAT_HISTORIES")
     debug_mode: bool = Field(default=False, env="DEBUG_MODE")

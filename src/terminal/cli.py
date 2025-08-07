@@ -2,9 +2,9 @@
 Command-line interface for Querypls SQL generation.
 """
 
-from config.constants import DEFAULT_SESSION_NAME
-from schemas.requests import NewChatRequest
-from backend.orchestrator import BackendOrchestrator
+from src.config.constants import DEFAULT_SESSION_NAME
+from src.schemas.requests import NewChatRequest
+from src.backend.orchestrator import BackendOrchestrator
 import sys
 import os
 import json
@@ -25,7 +25,8 @@ class QueryplsCLI:
         print(
             f"""Session created: {
                 session_info.session_name} (ID: {
-                session_info.session_id})""")
+                session_info.session_id})"""
+        )
         return session_info.session_id
 
     def list_sessions(self):
@@ -65,11 +66,15 @@ class QueryplsCLI:
                 print("\nSQL Details:")
                 print(f"  Query Type: {response.sql_response.query_type}")
                 print(f"  Complexity: {response.sql_response.complexity}")
-                print(f"  Tables Used: {', '.join(response.sql_response.tables_used)}")
-                print(f"  Columns: {', '.join(response.sql_response.columns_selected)}")
-                print(f"  Estimated Rows: {response.sql_response.estimated_rows}")
+                print(
+                    f"  Tables Used: {', '.join(response.sql_response.tables_used)}")
+                print(
+                    f"  Columns: {', '.join(response.sql_response.columns_selected)}")
+                print(
+                    f"  Estimated Rows: {response.sql_response.estimated_rows}")
                 if response.sql_response.warnings:
-                    print(f"  Warnings: {', '.join(response.sql_response.warnings)}")
+                    print(
+                        f"  Warnings: {', '.join(response.sql_response.warnings)}")
 
         except Exception as e:
             print(f"Error: {str(e)}")

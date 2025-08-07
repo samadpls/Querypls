@@ -2,8 +2,8 @@
 Main Streamlit application for Querypls.
 """
 
-from schemas.requests import NewChatRequest
-from config.constants import (
+from src.schemas.requests import NewChatRequest
+from src.config.constants import (
     CSV_ANALYSIS_SECTION,
     CSV_UPLOAD_LABEL,
     CSV_UPLOAD_HELP,
@@ -24,21 +24,22 @@ from config.constants import (
     SESSIONS_SECTION,
     NEW_SESSION_BUTTON,
 )
-from frontend import (
-    display_logo_and_heading,
-    display_welcome_message,
-)
-from backend.backend import (
+from src.frontend.frontend import display_logo_and_heading, display_welcome_message
+from src.backend.backend import (
     display_github_badge,
     hide_main_menu_and_footer,
 )
-from backend.orchestrator import BackendOrchestrator
+from src.backend.orchestrator import BackendOrchestrator
 import streamlit as st
 import sys
 import os
 import pandas as pd
 
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+# Add the project root to Python path
+project_root = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+)
+sys.path.insert(0, project_root)
 
 
 def initialize_orchestrator():

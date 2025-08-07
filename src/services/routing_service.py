@@ -107,27 +107,87 @@ class IntelligentRoutingService:
         except Exception as e:
             return f"I encountered an error while generating SQL: {str(e)}"
 
-    def handle_csv_query(self, user_query: str, csv_data: str) -> str:
+    def handle_csv_query(
+        self,
+        user_query: str,
+        csv_data: str,
+        conversation_history: List[ChatMessage] = None,
+    ) -> str:
         """Handle CSV analysis queries."""
         try:
-            context = self._prepare_csv_context(user_query, csv_data)
+            # Use the AI agent to generate code based on user request and conversation history
+            context = self._prepare_csv_context(
+                user_query, csv_data, conversation_history
+            )
             result = self.csv_agent.run_sync(context)
 
             if hasattr(result.output, "python_code"):
-                return self._format_csv_response(result.output)
+                # Execute the generated code using Jupyter service
+                return self._execute_csv_analysis(
+                    result.output.python_code, csv_data, result.output.explanation
+                )
             else:
                 return "I'm sorry, I couldn't generate analysis code for that request. Could you please rephrase your question?"
 
         except Exception as e:
             return (
-                f"I encountered an error while generating CSV analysis code: {
-                    str(e)}")
+                f"I encountered an error while generating CSV analysis code: {str(e)}"
+            )
+
+    def _execute_csv_analysis(
+        self, python_code: str, csv_data: str, explanation: str
+    ) -> str:
+        """Execute CSV analysis code using Jupyter service."""
+        try:
+            from src.services.jupyter_service import CSVAnalysisService
+
+            # Create Jupyter service instance
+            jupyter_service = CSVAnalysisService()
+
+            # Create a temporary session for this analysis
+            session_id = "csv_analysis_temp"
+
+            # Load CSV data into the session
+            jupyter_service.load_csv_data(session_id, csv_data)
+
+            # Prepare the code with CSV data variable
+            full_code = f"csv_data = '''{csv_data}'''\n\n{python_code}"
+
+            # Execute the code
+            result = jupyter_service.execute_analysis(
+                session_id, full_code, max_retries=1
+            )
+
+            if result["status"] == "success":
+                output = result.get("output", "")
+
+                # Check if any images were created
+                import os
+                import glob
+
+                image_files = glob.glob("/tmp/*.png")
+
+                if image_files:
+                    image_info = "\n\n**Generated Images:**\n"
+                    for img_file in image_files:
+                        image_info += f"- {os.path.basename(img_file)}\n"
+                    output += image_info
+
+                return f"""**Analysis Results:**
+
+{output}
+
+**Explanation:** {explanation}"""
+            else:
+                error_msg = result.get("error_message", "Unknown error")
+                return f"❌ Error executing analysis: {error_msg}"
+
+        except Exception as e:
+            return f"❌ Error in CSV analysis: {str(e)}"
 
     def _prepare_routing_context(
-            self,
-            user_query: str,
-            conversation_history: List[ChatMessage],
-            csv_loaded: bool) -> str:
+        self, user_query: str, conversation_history: List[ChatMessage], csv_loaded: bool
+    ) -> str:
         """Prepare context for routing decision."""
         context_parts = [
             f"User Query: {user_query}",
@@ -158,9 +218,34 @@ class IntelligentRoutingService:
 
         return "\n".join(context_parts)
 
-    def _prepare_csv_context(self, user_query: str, csv_data: str) -> str:
+    def _prepare_csv_context(
+        self,
+        user_query: str,
+        csv_data: str,
+        conversation_history: List[ChatMessage] = None,
+    ) -> str:
         """Prepare context for CSV analysis."""
-        return f"User Query: {user_query}\n\nCSV Data Available: Yes\n\nGenerate Python code to analyze the CSV data based on the user's request."
+        context_parts = [
+            f"User Query: {user_query}",
+            f"CSV Data Available: Yes",
+            f"CSV Data Format: The CSV data is available as a string variable called 'csv_data' in the session",
+            f"CSV Content Preview: {csv_data[:200]}...",
+        ]
+
+        if conversation_history:
+            context_parts.append("Conversation History:")
+            # Last 5 messages for context
+            for msg in conversation_history[-5:]:
+                context_parts.append(f"- {msg.role}: {msg.content}")
+
+        context_parts.append(
+            "\nGenerate Python code to analyze the CSV data based on the user's request."
+        )
+        context_parts.append(
+            "IMPORTANT: Use pd.read_csv(StringIO(csv_data)) to load the data, NOT file paths!"
+        )
+
+        return "\n".join(context_parts)
 
     def _format_sql_response(self, sql_response) -> str:
         """Format SQL response for display."""
@@ -191,10 +276,7 @@ class IntelligentRoutingService:
 
         return "\n\n".join(response_parts)
 
-    def _fallback_routing(
-            self,
-            user_query: str,
-            csv_loaded: bool) -> RoutingDecision:
+    def _fallback_routing(self, user_query: str, csv_loaded: bool) -> RoutingDecision:
         """Fallback routing based on simple keyword matching."""
         query_lower = user_query.lower().strip()
 

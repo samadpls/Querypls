@@ -24,14 +24,12 @@ class ConversationResponse(BaseModel):
     """Response for conversational queries."""
 
     message: str = Field(description="Natural response to user query")
-    response_type: Literal["greeting",
-                           "help",
-                           "thanks",
-                           "goodbye",
-                           "general"] = Field(description="Type of response")
+    response_type: Literal["greeting", "help", "thanks", "goodbye", "general"] = Field(
+        description="Type of response"
+    )
     suggest_next: Optional[str] = Field(
-        description="Optional suggestion for what they could do next",
-        default=None)
+        description="Optional suggestion for what they could do next", default=None
+    )
 
 
 class SQLResponse(BaseModel):

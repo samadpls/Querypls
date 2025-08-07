@@ -85,10 +85,7 @@ class SimpleJupyterClient:
             except Exception as e2:
                 raise ValueError(f"Failed to create kernel: {str(e2)}")
 
-    def execute_code(
-            self,
-            code: str,
-            session_id: str = "default") -> ExecutionResult:
+    def execute_code(self, code: str, session_id: str = "default") -> ExecutionResult:
         if session_id not in self.clients:
             raise ValueError(f"Session {session_id} not found")
 
@@ -138,10 +135,7 @@ class SimpleJupyterClient:
             execution_time=execution_time,
         )
 
-    def import_function(
-            self,
-            func,
-            session_id: str = "default") -> ExecutionResult:
+    def import_function(self, func, session_id: str = "default") -> ExecutionResult:
         if session_id not in self.globals:
             raise ValueError(f"Session {session_id} not found")
 
@@ -259,9 +253,7 @@ print(df.head())
 
     def get_csv_info(self, session_id: str) -> Dict[str, Any]:
         if session_id not in self.csv_data:
-            return {
-                "status": "error",
-                "message": "No CSV data loaded for this session"}
+            return {"status": "error", "message": "No CSV data loaded for this session"}
 
         df = self.csv_data[session_id]
         return {

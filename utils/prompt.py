@@ -26,7 +26,7 @@ Analyze the user query and conversation history to determine the appropriate age
 
 ## Examples:
 - "Hello" → CONVERSATION_AGENT
-- "Show me all users" → SQL_AGENT
+- "Show me all users" → SQL_AGENT  
 - "Analyze this CSV data" → CSV_AGENT
 - "How are you?" → CONVERSATION_AGENT
 - "SELECT * FROM users" → SQL_AGENT
@@ -119,16 +119,33 @@ It must be an object and must contain these fields:
 5. Return clear, formatted output
 6. Handle missing data appropriately
 7. Use appropriate data types
+8. Keep the code simple and focused on the user's request
+
+## CRITICAL Code Requirements:
+- The CSV data is available as a string variable called `csv_data` in the session
+- ALWAYS use `pd.read_csv(StringIO(csv_data))` to load the data
+- NEVER use file paths like 'data.csv' or 'path/to/file.csv'
+- For graphs/charts, save them to `/tmp/` folder with descriptive names
+- Use `plt.savefig('/tmp/chart_name.png')` before `plt.show()`
+- Always print clear output with section headers
 
 ## Example Response
 {
-  "python_code": "import pandas as pd\\nimport matplotlib.pyplot as plt\\n\\n# Load and analyze data\\ndf = pd.read_csv('data.csv')\\nprint(f'Data shape: {df.shape}')\\nprint(df.head())\\n\\n# Create visualization\\nplt.figure(figsize=(10, 6))\\ndf['column'].value_counts().plot(kind='bar')\\nplt.title('Distribution of Column')\\nplt.show()",
-  "explanation": "Loads CSV data, displays basic info, and creates a bar chart of column distribution",
-  "expected_output": "Data shape, first few rows, and a bar chart visualization",
+  "python_code": "import pandas as pd\\nfrom io import StringIO\\nimport matplotlib.pyplot as plt\\n\\n# Load CSV data from session\\ndf = pd.read_csv(StringIO(csv_data))\\nprint('=== DATA OVERVIEW ===')\\nprint(f'Shape: {df.shape}')\\nprint(f'Columns: {list(df.columns)}')\\nprint('\\nFirst 5 rows:')\\nprint(df.head())\\n\\n# Create visualization\\nplt.figure(figsize=(10, 6))\\ndf['department'].value_counts().plot(kind='bar')\\nplt.title('Department Distribution')\\nplt.savefig('/tmp/department_chart.png')\\nplt.show()",
+  "explanation": "Loads CSV data from session, displays overview, and creates a bar chart saved to temp folder",
+  "expected_output": "Data overview and a bar chart visualization saved as image",
   "libraries_used": ["pandas", "matplotlib.pyplot"]
 }
 
-Respond only with the JSON object. Do not include any additional text or markdown formatting."""
+## Important Notes:
+- Use double backslashes for newlines in the python_code field
+- ALWAYS use `StringIO(csv_data)` to load CSV data - NEVER use file paths
+- Save charts to `/tmp/` folder
+- Keep the explanation concise
+- Make sure the JSON is valid and properly formatted
+- The csv_data variable is already available in the session
+
+Respond only with the JSON object."""
 
 CODE_FIX_PROMPT = """You are a Python debugging expert. Fix Python code based on error messages.
 

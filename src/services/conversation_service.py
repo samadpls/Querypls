@@ -7,8 +7,8 @@ from pydantic_ai import Agent, RunContext
 from pydantic_ai.models.groq import GroqModel
 from pydantic_ai.providers.groq import GroqProvider
 
-from config.settings import get_settings
-from services.models import ConversationResponse, Failed
+from src.config.settings import get_settings
+from src.services.models import ConversationResponse, Failed
 from utils.prompt import CONVERSATION_PROMPT
 
 
@@ -53,8 +53,7 @@ class ConversationService:
             "okay",
         ]
         query_lower = query.lower().strip()
-        return any(
-            keyword in query_lower for keyword in conversational_keywords)
+        return any(keyword in query_lower for keyword in conversational_keywords)
 
     def get_conversational_response(self, query: str) -> str:
         """Get a natural response for conversational queries."""
@@ -67,11 +66,7 @@ class ConversationService:
                 # Fallback responses
                 query_lower = query.lower().strip()
 
-                if any(
-                    greeting in query_lower for greeting in [
-                        "hi",
-                        "hello",
-                        "hey"]):
+                if any(greeting in query_lower for greeting in ["hi", "hello", "hey"]):
                     return "Hello! 👋 How can I help you today? I can assist with SQL generation or CSV data analysis."
                 elif "how are you" in query_lower:
                     return "I'm doing great, thank you for asking! 😊 How can I assist you with your data queries today?"

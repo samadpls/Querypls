@@ -2,7 +2,7 @@
 Backend utilities for Streamlit configuration and styling.
 """
 
-from config.constants import STREAMLIT_CONFIG
+from src.config.constants import STREAMLIT_CONFIG
 import streamlit as st
 import sys
 import os

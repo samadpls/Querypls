@@ -6,9 +6,9 @@ from pydantic_ai import Agent
 from pydantic_ai.models.groq import GroqModel
 from pydantic_ai.providers.groq import GroqProvider
 
-from config.settings import get_settings
-from schemas.requests import SQLGenerationRequest, ChatMessage
-from schemas.responses import SQLQueryResponse, ChatResponse, ErrorResponse
+from src.config.settings import get_settings
+from src.schemas.requests import SQLGenerationRequest, ChatMessage
+from src.schemas.responses import SQLQueryResponse, ChatResponse, ErrorResponse
 from utils.prompt import SQL_GENERATION_PROMPT
 
 
@@ -23,14 +23,13 @@ class SQLGenerationService:
             )
 
         self.model = GroqModel(
-            self.settings.groq_model_name,
-            provider=GroqProvider(
-                api_key=self.api_key))
+            self.settings.groq_model_name, provider=GroqProvider(
+                api_key=self.api_key)
+        )
 
         self.agent = Agent(
-            self.model,
-            instructions=SQL_GENERATION_PROMPT,
-            output_type=SQLQueryResponse)
+            self.model, instructions=SQL_GENERATION_PROMPT, output_type=SQLQueryResponse
+        )
 
     def format_chat_history(self, messages: list) -> str:
         history = []
@@ -44,11 +43,11 @@ class SQLGenerationService:
 
             if "```sql" in content:
                 content = content.replace(
-                    "```sql\n", "").replace(
-                    "\n```", "").strip()
+                    "```sql\n", "").replace("\n```", "").strip()
 
-            history.append({"role": role, "query" if role ==
-                            "user" else "response": content})
+            history.append(
+                {"role": role, "query" if role == "user" else "response": content}
+            )
 
         return json.dumps(history, indent=2)
 
@@ -118,10 +117,7 @@ class SQLGenerationService:
                 session_id=session_id,
             )
 
-    def generate_sql_legacy(
-            self,
-            user_query: str,
-            conversation_history: list) -> str:
+    def generate_sql_legacy(self, user_query: str, conversation_history: list) -> str:
         request = SQLGenerationRequest(
             user_query=user_query, conversation_history=conversation_history
         )
