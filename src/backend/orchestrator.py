@@ -54,8 +54,7 @@ class BackendOrchestrator:
 
         messages = []
         if request.initial_context:
-            messages.append(ChatMessage(
-                role="system", content=request.initial_context))
+            messages.append(ChatMessage(role="system", content=request.initial_context))
 
         messages.append(ChatMessage(role="assistant", content=WELCOME_MESSAGE))
 
@@ -104,44 +103,45 @@ class BackendOrchestrator:
         session = self.get_session(session_id)
         if not session:
             raise ValueError(f"Session {session_id} not found")
-        
+
         # Save CSV to file
         import os
         import tempfile
-        
+
         # Create temp directory for this session if it doesn't exist
         temp_dir = f"/tmp/querypls_session_{session_id}"
         os.makedirs(temp_dir, exist_ok=True)
-        
+
         # Save CSV to file
         csv_file_path = os.path.join(temp_dir, "data.csv")
-        with open(csv_file_path, 'w') as f:
+        with open(csv_file_path, "w") as f:
             f.write(csv_content)
-        
+
         # Store both the content and file path in session
         session.csv_data = csv_content
         session.csv_file_path = csv_file_path
-        
+
         # Get CSV info for context
         import pandas as pd
         from io import StringIO
+
         df = pd.read_csv(StringIO(csv_content))
-        
+
         session.csv_info = {
             "file_path": csv_file_path,
             "shape": df.shape,
             "columns": list(df.columns),
             "dtypes": df.dtypes.to_dict(),
-            "sample_data": df.head(3).to_dict('records')
+            "sample_data": df.head(3).to_dict("records"),
         }
-        
+
         session.last_activity = datetime.now()
-        
+
         return {
             "status": "success",
             "message": "CSV data loaded successfully",
             "shape": df.shape,
-            "columns": list(df.columns)
+            "columns": list(df.columns),
         }
 
     def generate_intelligent_response(

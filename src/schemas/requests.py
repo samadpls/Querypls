@@ -13,10 +13,8 @@ class ChatMessage(BaseModel):
         description="Message role (user, assistant, system)"
     )
     content: str = Field(description="Message content", min_length=1)
-    timestamp: Optional[str] = Field(
-        default=None, description="Message timestamp")
-    session_id: Optional[str] = Field(
-        default=None, description="Session identifier")
+    timestamp: Optional[str] = Field(default=None, description="Message timestamp")
+    session_id: Optional[str] = Field(default=None, description="Session identifier")
 
 
 class SQLGenerationRequest(BaseModel):
@@ -45,8 +43,7 @@ class ConversationHistory(BaseModel):
     messages: List[ChatMessage] = Field(
         default=[], description="List of conversation messages"
     )
-    session_id: Optional[str] = Field(
-        default=None, description="Session identifier")
+    session_id: Optional[str] = Field(default=None, description="Session identifier")
 
 
 class NewChatRequest(BaseModel):

@@ -16,8 +16,7 @@ class RoutingDecision(BaseModel):
     confidence: float = Field(
         description="Confidence level in the routing decision", ge=0.0, le=1.0
     )
-    reasoning: str = Field(
-        description="Brief explanation of why this agent was chosen")
+    reasoning: str = Field(description="Brief explanation of why this agent was chosen")
 
 
 class ConversationResponse(BaseModel):
@@ -36,10 +35,8 @@ class SQLResponse(BaseModel):
     """Response for SQL generation."""
 
     sql_query: str = Field(description="The generated SQL query")
-    explanation: str = Field(
-        description="Brief explanation of what the query does")
-    tables_used: List[str] = Field(
-        description="Array of table names used in the query")
+    explanation: str = Field(description="Brief explanation of what the query does")
+    tables_used: List[str] = Field(description="Array of table names used in the query")
     columns_selected: List[str] = Field(
         description="Array of column names selected in the query"
     )
@@ -49,8 +46,7 @@ class SQLResponse(BaseModel):
     complexity: Literal["SIMPLE", "MEDIUM", "COMPLEX"] = Field(
         description="Query complexity level"
     )
-    estimated_rows: str = Field(
-        description="Estimated number of rows returned")
+    estimated_rows: str = Field(description="Estimated number of rows returned")
     execution_time: Optional[str] = Field(
         description="Estimated execution time", default=None
     )
@@ -63,12 +59,9 @@ class CSVAnalysisResponse(BaseModel):
     """Response for CSV analysis."""
 
     python_code: str = Field(description="The generated Python code")
-    explanation: str = Field(
-        description="Brief explanation of what the code does")
-    expected_output: str = Field(
-        description="What output is expected from the code")
-    libraries_used: List[str] = Field(
-        description="Array of Python libraries used")
+    explanation: str = Field(description="Brief explanation of what the code does")
+    expected_output: str = Field(description="What output is expected from the code")
+    libraries_used: List[str] = Field(description="Array of Python libraries used")
 
 
 class CodeFixResponse(BaseModel):
@@ -79,8 +72,7 @@ class CodeFixResponse(BaseModel):
     expected_output: str = Field(
         description="What output is expected from the fixed code"
     )
-    libraries_used: List[str] = Field(
-        description="Array of Python libraries used")
+    libraries_used: List[str] = Field(description="Array of Python libraries used")
 
 
 class Failed(BaseModel):

@@ -7,6 +7,7 @@ from pydantic_ai import Agent, RunContext
 from pydantic_ai.models.groq import GroqModel
 from pydantic_ai.providers.groq import GroqProvider
 
+from src.config.constants import WORST_CASE_SCENARIO
 from src.config.settings import get_settings
 from src.services.models import ConversationResponse, Failed
 from utils.prompt import CONVERSATION_PROMPT
@@ -79,7 +80,7 @@ class ConversationService:
                 elif "help" in query_lower or "what can you do" in query_lower:
                     return "I'm Querypls, your SQL and data analysis assistant! 🗃️💬\n\nI can help you with:\n• **SQL Generation**: Convert natural language to SQL queries\n• **CSV Analysis**: Analyze data files with Python code\n• **Data Visualization**: Create charts and graphs\n\nJust ask me anything about your data!"
                 else:
-                    return "I'm here to help! I can assist with SQL generation or CSV data analysis. What would you like to do?"
+                    return WORST_CASE_SCENARIO
 
         except Exception as e:
             # Fallback response

@@ -77,8 +77,7 @@ class SimpleJupyterClient:
                 # Import common data science libraries
                 self.execute_code("import pandas as pd", session_id)
                 self.execute_code("import numpy as np", session_id)
-                self.execute_code(
-                    "import matplotlib.pyplot as plt", session_id)
+                self.execute_code("import matplotlib.pyplot as plt", session_id)
                 self.execute_code("import seaborn as sns", session_id)
 
                 return session_id
@@ -111,8 +110,7 @@ class SimpleJupyterClient:
                 content = msg.get("content", {})
 
                 if msg_type == "execute_result":
-                    output.append(
-                        str(content.get("data", {}).get("text/plain", "")))
+                    output.append(str(content.get("data", {}).get("text/plain", "")))
                 elif msg_type == "stream":
                     output.append(content.get("text", ""))
                 elif msg_type == "error":
@@ -216,8 +214,7 @@ print(df.head())
     ) -> Dict[str, Any]:
         for attempt in range(max_retries):
             try:
-                result = self.jupyter_client.execute_code(
-                    python_code, session_id)
+                result = self.jupyter_client.execute_code(python_code, session_id)
 
                 if result.status == "Success":
                     return {

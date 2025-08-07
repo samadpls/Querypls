@@ -19,17 +19,14 @@ class CSVAnalysisContext(BaseModel):
 
 
 class PythonCodeResponse(BaseModel):
-    python_code: str = Field(
-        description="Generated Python code for data analysis")
+    python_code: str = Field(description="Generated Python code for data analysis")
     explanation: str = Field(description="Explanation of what the code does")
-    expected_output: str = Field(
-        description="What output is expected from the code")
+    expected_output: str = Field(description="What output is expected from the code")
     libraries_used: list = Field(description="List of Python libraries used")
 
 
 class CodeExecutionResult(BaseModel):
-    status: str = Field(
-        description="Execution status: success, error, or retry")
+    status: str = Field(description="Execution status: success, error, or retry")
     output: str = Field(description="Output from code execution")
     error_message: Optional[str] = Field(
         description="Error message if execution failed"
@@ -89,8 +86,7 @@ Generate Python code that:
     def execute_analysis_code(
         self, python_code: str, session_id: str, max_retries: int = 3
     ) -> CodeExecutionResult:
-        result = self.csv_service.execute_analysis(
-            session_id, python_code, max_retries)
+        result = self.csv_service.execute_analysis(session_id, python_code, max_retries)
 
         return CodeExecutionResult(
             status=result["status"],
@@ -130,8 +126,7 @@ def create_csv_analysis_agent() -> Agent:
     settings = get_settings()
 
     model = GroqModel(
-        settings.groq_model_name, provider=GroqProvider(
-            api_key=settings.groq_api_key)
+        settings.groq_model_name, provider=GroqProvider(api_key=settings.groq_api_key)
     )
 
     agent = Agent(model, instructions=CSV_AGENT_PROMPT, output_type=str)
@@ -211,8 +206,7 @@ Output:
             sample_data=csv_info["sample_data"],
         )
 
-        result = csv_tools.fix_code_error(
-            original_code, error_message, csv_context)
+        result = csv_tools.fix_code_error(original_code, error_message, csv_context)
         return f"""🔧 Fixed Code:
 ```python
 {result.python_code}

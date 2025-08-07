@@ -8,6 +8,7 @@ from pydantic_ai import Agent, RunContext
 from pydantic_ai.models.groq import GroqModel
 from pydantic_ai.providers.groq import GroqProvider
 
+from src.config.constants import WORST_CASE_SCENARIO
 from src.config.settings import get_settings
 from src.services.models import (
     RoutingDecision,
@@ -95,8 +96,7 @@ class IntelligentRoutingService:
     ) -> str:
         """Handle SQL generation queries."""
         try:
-            context = self._prepare_sql_context(
-                user_query, conversation_history)
+            context = self._prepare_sql_context(user_query, conversation_history)
             result = self.sql_agent.run_sync(context)
 
             if hasattr(result.output, "sql_query"):
@@ -131,7 +131,7 @@ class IntelligentRoutingService:
 
         except Exception as e:
             # If LLM fails, provide a graceful response without showing errors
-            return "I'm here to help! I can assist with SQL generation or CSV data analysis. What would you like to do?"
+            return WORST_CASE_SCENARIO 
 
     def _execute_csv_analysis(
         self, python_code: str, csv_info: Dict[str, Any], explanation: str
@@ -147,7 +147,7 @@ class IntelligentRoutingService:
             session_id = "csv_analysis_temp"
 
             # Load CSV data into the session
-            jupyter_service.load_csv_data(session_id, csv_info['file_path'])
+            jupyter_service.load_csv_data(session_id, csv_info["file_path"])
 
             # Install required libraries if needed
             install_code = """
@@ -166,7 +166,7 @@ install_package('numpy')
 install_package('matplotlib')
 install_package('seaborn')
 """
-            
+
             # Execute installation first
             install_result = jupyter_service.execute_analysis(
                 session_id, install_code, max_retries=1
@@ -175,7 +175,7 @@ install_package('seaborn')
             # Retry loop for code execution with error fixing
             current_code = python_code
             max_retries = 3
-            
+
             for attempt in range(max_retries):
                 # Execute the current code
                 result = jupyter_service.execute_analysis(
@@ -184,7 +184,7 @@ install_package('seaborn')
 
                 if result["status"] == "success":
                     output = result.get("output", "")
-                    
+
                     # If output is empty, provide a fallback
                     if not output.strip():
                         output = "Analysis completed successfully but no output was generated."
@@ -192,11 +192,11 @@ install_package('seaborn')
                     # Check if any images were created in the specific session directory
                     import os
                     import glob
-                    
+
                     # Look for images in the session's temp directory
                     session_temp_dir = f"/tmp/querypls_session_csv_analysis_temp"
                     image_files = []
-                    
+
                     if os.path.exists(session_temp_dir):
                         png_files = glob.glob(os.path.join(session_temp_dir, "*.png"))
                         jpg_files = glob.glob(os.path.join(session_temp_dir, "*.jpg"))
@@ -213,46 +213,47 @@ install_package('seaborn')
 {output}
 
 **Explanation:** {explanation}"""
-                
+
                 else:
                     # Code execution failed - try to fix it
                     error_msg = result.get("error_message", "Unknown error")
-                    
+
                     if attempt < max_retries - 1:  # Not the last attempt
                         # Send error to LLM to fix the code
-                        fixed_code = self._fix_python_code(current_code, error_msg, csv_info)
+                        fixed_code = self._fix_python_code(
+                            current_code, error_msg, csv_info
+                        )
                         if fixed_code:
                             current_code = fixed_code
                             continue  # Try again with fixed code
-                    
-                    # If we reach here, all attempts failed or no more retries
-                    return "I'm here to help! I can assist with SQL generation or CSV data analysis. What would you like to do?"
+
+                    return WORST_CASE_SCENARIO 
 
         except Exception as e:
-            return "I'm here to help! I can assist with SQL generation or CSV data analysis. What would you like to do?"
+            return WORST_CASE_SCENARIO 
 
         except Exception as e:
-            return "I'm here to help! I can assist with SQL generation or CSV data analysis. What would you like to do?"
+            return WORST_CASE_SCENARIO 
 
-        # This should never be reached, but just in case
-        return "I'm here to help! I can assist with SQL generation or CSV data analysis. What would you like to do?"
+        return WORST_CASE_SCENARIO 
 
-    def _fix_python_code(self, original_code: str, error_message: str, csv_info: Dict[str, Any]) -> Optional[str]:
+    def _fix_python_code(
+        self, original_code: str, error_message: str, csv_info: Dict[str, Any]
+    ) -> Optional[str]:
         """Send error to LLM to fix the Python code."""
         try:
-            # Create context for code fixing
-            context = self._prepare_code_fix_context(original_code, error_message, csv_info)
-            
-            # Use the CSV agent to generate fixed code
+            context = self._prepare_code_fix_context(
+                original_code, error_message, csv_info
+            )
+
             result = self.csv_agent.run_sync(context)
-            
+
             if hasattr(result.output, "python_code"):
                 return result.output.python_code
             else:
                 return None
-                
+
         except Exception as e:
-            # If fixing fails, return None to continue with original code
             return None
 
     def _prepare_routing_context(
@@ -304,19 +305,17 @@ install_package('seaborn')
             f"CSV Data Types: {csv_info['dtypes']}",
             f"CSV Sample Data: {csv_info['sample_data']}",
         ]
-        
+
         if conversation_history:
             context_parts.append("Conversation History:")
             # Last 5 messages for context
             for msg in conversation_history[-5:]:
                 context_parts.append(f"- {msg.role}: {msg.content}")
-        
+
         context_parts.append(
             "\nGenerate SIMPLE Python code that directly answers the user's question."
         )
-        context_parts.append(
-            "MAXIMUM 10 LINES OF CODE - Keep it simple!"
-        )
+        context_parts.append("MAXIMUM 10 LINES OF CODE - Keep it simple!")
         context_parts.append(
             "NO COMPREHENSIVE ANALYSIS - Just answer the specific question!"
         )
@@ -329,10 +328,12 @@ install_package('seaborn')
         context_parts.append(
             "For charts, use plt.savefig('/tmp/querypls_session_csv_analysis_temp/chart_name.png') and plt.show()."
         )
-        
+
         return "\n".join(context_parts)
 
-    def _prepare_code_fix_context(self, original_code: str, error_message: str, csv_info: Dict[str, Any]) -> str:
+    def _prepare_code_fix_context(
+        self, original_code: str, error_message: str, csv_info: Dict[str, Any]
+    ) -> str:
         """Prepare context for code fixing."""
         context_parts = [
             "CODE FIXING REQUEST:",
@@ -355,9 +356,9 @@ install_package('seaborn')
             "6. Print human-readable insights directly",
             "7. For charts, save to /tmp/querypls_session_csv_analysis_temp/",
             "",
-            "Generate fixed Python code that will execute without errors."
+            "Generate fixed Python code that will execute without errors.",
         ]
-        
+
         return "\n".join(context_parts)
 
     def _format_sql_response(self, sql_response) -> str:
@@ -373,8 +374,7 @@ install_package('seaborn')
         ]
 
         if sql_response.warnings:
-            response_parts.append(
-                f"**Warnings:** {', '.join(sql_response.warnings)}")
+            response_parts.append(f"**Warnings:** {', '.join(sql_response.warnings)}")
 
         return "\n\n".join(response_parts)
 
@@ -400,4 +400,4 @@ install_package('seaborn')
 
     def _get_fallback_conversation_response(self, user_query: str) -> str:
         """Get fallback conversation response when LLM fails."""
-        return "I'm here to help! I can assist with SQL generation or CSV data analysis. What would you like to do?"
+        return WORST_CASE_SCENARIO 

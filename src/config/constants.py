@@ -10,8 +10,7 @@ STREAMLIT_PORT = 8501
 STREAMLIT_HOST = "localhost"
 
 # Streamlit Configuration
-STREAMLIT_CONFIG = {"page_title": "Querypls",
-                    "page_icon": "💬", "layout": "wide"}
+STREAMLIT_CONFIG = {"page_title": "Querypls", "page_icon": "💬", "layout": "wide"}
 
 # Welcome and Session Messages
 WELCOME_MESSAGE = "Hello! 👋 I'm Querypls, your SQL and data analysis assistant. I can help you generate SQL queries or analyze CSV files. What would you like to work on today?"
@@ -34,6 +33,9 @@ CSV_ANALYSIS_ERROR = "❌ Error analyzing CSV: {error}"
 # Session Management
 SESSION_CREATE_ERROR = "❌ Error creating session: {error}"
 SESSION_NOT_FOUND_ERROR = "❌ Session not found"
+
+# worst-case scenario
+WORST_CASE_SCENARIO = "I'm here to help! I can assist with SQL generation or CSV data analysis. What would you like to do?"
 
 # Application Errors
 ORCHESTRATOR_INIT_ERROR = "❌ Error initializing orchestrator: {error}"

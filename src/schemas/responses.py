@@ -9,8 +9,7 @@ from pydantic import BaseModel, Field
 class SQLQueryResponse(BaseModel):
     """Schema for SQL query generation response."""
 
-    sql_query: str = Field(...,
-                           description="The generated SQL query as a string")
+    sql_query: str = Field(..., description="The generated SQL query as a string")
     explanation: str = Field(
         ..., description="Brief explanation of what the query does"
     )
@@ -41,10 +40,8 @@ class SQLQueryResponse(BaseModel):
 class ChatResponse(BaseModel):
     """Schema for chat response."""
 
-    message_id: str = Field(...,
-                            description="Unique identifier for the message")
-    role: Literal["assistant"] = Field(
-        default="assistant", description="Message role")
+    message_id: str = Field(..., description="Unique identifier for the message")
+    role: Literal["assistant"] = Field(default="assistant", description="Message role")
     content: str = Field(..., description="Response content")
     sql_response: Optional[SQLQueryResponse] = Field(
         default=None, description="Structured SQL response if applicable"
@@ -58,8 +55,7 @@ class ErrorResponse(BaseModel):
 
     error_code: str = Field(..., description="Error code identifier")
     error_message: str = Field(..., description="Human-readable error message")
-    details: Optional[str] = Field(
-        default=None, description="Additional error details")
+    details: Optional[str] = Field(default=None, description="Additional error details")
     timestamp: str = Field(..., description="Error timestamp")
 
 
@@ -69,8 +65,7 @@ class SessionInfo(BaseModel):
     session_id: str = Field(..., description="Unique session identifier")
     session_name: str = Field(..., description="Session name")
     created_at: str = Field(..., description="Session creation timestamp")
-    message_count: int = Field(...,
-                               description="Number of messages in the session")
+    message_count: int = Field(..., description="Number of messages in the session")
     last_activity: str = Field(..., description="Last activity timestamp")
 
 
@@ -82,5 +77,4 @@ class HealthCheckResponse(BaseModel):
     )
     version: str = Field(..., description="Application version")
     timestamp: str = Field(..., description="Health check timestamp")
-    services: dict = Field(
-        default={}, description="Status of individual services")
+    services: dict = Field(default={}, description="Status of individual services")

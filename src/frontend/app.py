@@ -52,8 +52,7 @@ def get_current_session_id():
     if "current_session_id" not in st.session_state:
         orchestrator = initialize_orchestrator()
         if orchestrator:
-            st.session_state["current_session_id"] = orchestrator.get_default_session(
-            )
+            st.session_state["current_session_id"] = orchestrator.get_default_session()
     return st.session_state.get("current_session_id")
 
 
@@ -78,32 +77,38 @@ def display_message_with_images(content: str):
         # Split the content into text and image sections
         parts = content.split("**Generated Images:**")
         text_content = parts[0].strip()
-        
+
         # Display the text content
         st.markdown(text_content)
-        
+
         # Handle images if present
         if len(parts) > 1:
             image_section = parts[1].strip()
-            image_lines = [line.strip() for line in image_section.split('\n') if line.strip().startswith('- ')]
-            
+            image_lines = [
+                line.strip()
+                for line in image_section.split("\n")
+                if line.strip().startswith("- ")
+            ]
+
             if image_lines:
                 st.markdown("**Generated Images:**")
-                
+
                 # Look for images in the specific temp directory
                 import os
                 import glob
-                
+
                 temp_dir = "/tmp/querypls_session_csv_analysis_temp"
                 if os.path.exists(temp_dir):
                     for line in image_lines:
                         # Extract filename from the line (e.g., "- department_chart.png")
-                        filename = line.replace('- ', '').strip()
+                        filename = line.replace("- ", "").strip()
                         image_path = os.path.join(temp_dir, filename)
-                        
+
                         if os.path.exists(image_path):
                             try:
-                                st.image(image_path, caption=filename, use_column_width=True)
+                                st.image(
+                                    image_path, caption=filename, use_column_width=True
+                                )
                             except Exception as e:
                                 st.error(f"Error displaying image {filename}: {str(e)}")
                         else:
@@ -117,7 +122,7 @@ def cleanup_old_images():
     """Clean up old CSV analysis images."""
     import os
     import glob
-    
+
     temp_dir = "/tmp/querypls_session_csv_analysis_temp"
     if os.path.exists(temp_dir):
         try:
@@ -185,7 +190,7 @@ def main():
             try:
                 # Clean up old images when creating new session
                 cleanup_old_images()
-                
+
                 sessions = orchestrator.list_sessions()
                 new_session = orchestrator.create_new_session(
                     NewChatRequest(session_name=f"Chat {len(sessions) + 1}")
@@ -203,9 +208,8 @@ def main():
                 try:
                     # Clean up old images before loading new CSV
                     cleanup_old_images()
-                    
-                    result = orchestrator.load_csv_data(
-                        current_session_id, csv_content)
+
+                    result = orchestrator.load_csv_data(current_session_id, csv_content)
                     if result["status"] == "success":
                         st.success(CSV_LOADED_SUCCESS)
                         st.session_state["csv_loaded"] = True

@@ -23,8 +23,7 @@ class SQLGenerationService:
             )
 
         self.model = GroqModel(
-            self.settings.groq_model_name, provider=GroqProvider(
-                api_key=self.api_key)
+            self.settings.groq_model_name, provider=GroqProvider(api_key=self.api_key)
         )
 
         self.agent = Agent(
@@ -42,8 +41,7 @@ class SQLGenerationService:
                 role = msg.get("role", "user")
 
             if "```sql" in content:
-                content = content.replace(
-                    "```sql\n", "").replace("\n```", "").strip()
+                content = content.replace("```sql\n", "").replace("\n```", "").strip()
 
             history.append(
                 {"role": role, "query" if role == "user" else "response": content}
@@ -53,8 +51,7 @@ class SQLGenerationService:
 
     def generate_sql(self, request: SQLGenerationRequest) -> ChatResponse:
         try:
-            formatted_history = self.format_chat_history(
-                request.conversation_history)
+            formatted_history = self.format_chat_history(request.conversation_history)
             prompt = f"Previous conversation: {formatted_history}\nCurrent question: {
                 request.user_query}"
 

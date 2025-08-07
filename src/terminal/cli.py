@@ -66,15 +66,11 @@ class QueryplsCLI:
                 print("\nSQL Details:")
                 print(f"  Query Type: {response.sql_response.query_type}")
                 print(f"  Complexity: {response.sql_response.complexity}")
-                print(
-                    f"  Tables Used: {', '.join(response.sql_response.tables_used)}")
-                print(
-                    f"  Columns: {', '.join(response.sql_response.columns_selected)}")
-                print(
-                    f"  Estimated Rows: {response.sql_response.estimated_rows}")
+                print(f"  Tables Used: {', '.join(response.sql_response.tables_used)}")
+                print(f"  Columns: {', '.join(response.sql_response.columns_selected)}")
+                print(f"  Estimated Rows: {response.sql_response.estimated_rows}")
                 if response.sql_response.warnings:
-                    print(
-                        f"  Warnings: {', '.join(response.sql_response.warnings)}")
+                    print(f"  Warnings: {', '.join(response.sql_response.warnings)}")
 
         except Exception as e:
             print(f"Error: {str(e)}")

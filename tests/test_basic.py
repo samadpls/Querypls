@@ -12,7 +12,9 @@ from src.backend.orchestrator import BackendOrchestrator
 
 def test_create_new_session():
     orchestrator = BackendOrchestrator()
-    session_info = orchestrator.create_new_session(NewChatRequest(session_name="Test Chat"))
+    session_info = orchestrator.create_new_session(
+        NewChatRequest(session_name="Test Chat")
+    )
     assert session_info.session_name == "Test Chat"
     assert session_info.session_id is not None
 
@@ -27,8 +29,6 @@ def test_list_sessions():
     assert any(s.session_name == "Chat 2" for s in sessions)
 
 
-
-
 def test_health_check():
     orchestrator = BackendOrchestrator()
     health = orchestrator.health_check()
@@ -39,6 +39,8 @@ def test_health_check():
 
 def test_session_message_flow():
     orchestrator = BackendOrchestrator()
-    session_info = orchestrator.create_new_session(NewChatRequest(session_name="Test Session"))
+    session_info = orchestrator.create_new_session(
+        NewChatRequest(session_name="Test Session")
+    )
     assert session_info.session_name == "Test Session"
     assert session_info.session_id is not None

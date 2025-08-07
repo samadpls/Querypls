@@ -24,7 +24,7 @@ def test_chat_response():
         message_id="123",
         content="test response",
         timestamp="2024-01-01T00:00:00",
-        session_id="456"
+        session_id="456",
     )
     assert resp.content == "test response"
     assert resp.session_id == "456"
