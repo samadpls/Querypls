@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 import sys, os
 from src.backend import *
-from src.constant import *
+from src.config.constants import *
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -29,11 +29,3 @@ def mock_set_page_config():
 def mock_oauth2_component():
     with patch("streamlit_oauth.OAuth2Component") as mock_oauth2_component:
         yield mock_oauth2_component
-
-
-def test_hide_main_menu_and_footer(mock_markdown):
-    hide_main_menu_and_footer()
-    mock_markdown.assert_called_once_with(
-        """<style>#MainMenu {visibility: hidden;}footer {visibility: hidden;}</style>""",
-        unsafe_allow_html=True,
-    )

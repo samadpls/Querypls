@@ -14,7 +14,7 @@ __pycache__/
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
-test_*
+./test_*
 run_*
 
 # Unit test / coverage reports

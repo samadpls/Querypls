@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from src.config.settings import get_settings
 from src.config.constants import WELCOME_MESSAGE, DEFAULT_SESSION_NAME
 from src.services.sql_service import SQLGenerationService
-from src.services.csv_analysis_tools import CSVAnalysisTools, create_csv_analysis_agent
+from src.services.csv_analysis_tools import CSVAnalysisTools
 from src.services.conversation_service import ConversationService
 from src.services.routing_service import IntelligentRoutingService
 from src.schemas.requests import (
@@ -34,6 +34,8 @@ class Session:
     messages: List[ChatMessage]
     last_activity: datetime
     csv_data: Optional[str] = None
+    csv_file_path: Optional[str] = None
+    csv_info: Optional[Dict[str, Any]] = None
 
 
 class BackendOrchestrator:
@@ -41,7 +43,6 @@ class BackendOrchestrator:
         self.settings = get_settings()
         self.sql_service = SQLGenerationService()
         self.csv_tools = CSVAnalysisTools()
-        self.csv_agent = create_csv_analysis_agent()
         self.conversation_service = ConversationService()
         self.routing_service = IntelligentRoutingService()
         self.sessions: Dict[str, Session] = {}
@@ -103,12 +104,45 @@ class BackendOrchestrator:
         session = self.get_session(session_id)
         if not session:
             raise ValueError(f"Session {session_id} not found")
-
+        
+        # Save CSV to file
+        import os
+        import tempfile
+        
+        # Create temp directory for this session if it doesn't exist
+        temp_dir = f"/tmp/querypls_session_{session_id}"
+        os.makedirs(temp_dir, exist_ok=True)
+        
+        # Save CSV to file
+        csv_file_path = os.path.join(temp_dir, "data.csv")
+        with open(csv_file_path, 'w') as f:
+            f.write(csv_content)
+        
+        # Store both the content and file path in session
         session.csv_data = csv_content
-        result = self.csv_tools.load_csv_data(csv_content, session_id)
+        session.csv_file_path = csv_file_path
+        
+        # Get CSV info for context
+        import pandas as pd
+        from io import StringIO
+        df = pd.read_csv(StringIO(csv_content))
+        
+        session.csv_info = {
+            "file_path": csv_file_path,
+            "shape": df.shape,
+            "columns": list(df.columns),
+            "dtypes": df.dtypes.to_dict(),
+            "sample_data": df.head(3).to_dict('records')
+        }
+        
         session.last_activity = datetime.now()
-
-        return result
+        
+        return {
+            "status": "success",
+            "message": "CSV data loaded successfully",
+            "shape": df.shape,
+            "columns": list(df.columns)
+        }
 
     def generate_intelligent_response(
         self, session_id: str, user_query: str
@@ -139,9 +173,9 @@ class BackendOrchestrator:
                 user_query, session.messages
             )
         elif routing_decision.agent == "CSV_AGENT":
-            if session.csv_data:
+            if session.csv_data and session.csv_info:
                 response_content = self.routing_service.handle_csv_query(
-                    user_query, session.csv_data, session.messages
+                    user_query, session.csv_info, session.messages
                 )
             else:
                 response_content = "I don't see any CSV data loaded. Please upload a CSV file first to analyze it."

@@ -3,15 +3,13 @@ Application settings with environment variable support.
 """
 
 import os
-from typing import Optional
-from pydantic import Field
-from pydantic_settings import BaseSettings
-
-from src.config.constants import AVAILABLE_MODELS
+from typing import Optional, ClassVar
+from pydantic import Field, BaseModel, ConfigDict
 
 
-class Settings(BaseSettings):
-    groq_api_key: str = Field(..., env="GROQ_API_KEY")
+
+class Settings(BaseModel):
+    groq_api_key: str = Field(default=os.getenv("GROQ_API_KEY", "mock_api_key"), env="GROQ_API_KEY")
     groq_model_name: str = Field(
         default="openai/gpt-oss-120b", env="GROQ_MODEL_NAME")
     app_version: str = Field(default="1.0.0", env="APP_VERSION")
@@ -26,10 +24,13 @@ class Settings(BaseSettings):
     temperature: Optional[str] = Field(None, env="TEMPERATURE")
     log_level: Optional[str] = Field(None, env="LOG_LEVEL")
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        extra = "ignore"
+    json_schema_extra: ClassVar[str] = "ignore"
+
+    model_config = ConfigDict(
+        env_file = ".env",
+        env_file_encoding = "utf-8",
+        # Add any necessary configuration here
+    )
 
 
 _settings_instance: Optional[Settings] = None
@@ -41,10 +42,3 @@ def get_settings() -> Settings:
         _settings_instance = Settings()
     return _settings_instance
 
-
-def get_available_models():
-    return AVAILABLE_MODELS
-
-
-def get_model_info(model_name: str):
-    return AVAILABLE_MODELS.get(model_name, None)

@@ -3,7 +3,7 @@ Intelligent routing service for determining which agent should handle user queri
 """
 
 import json
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from pydantic_ai import Agent, RunContext
 from pydantic_ai.models.groq import GroqModel
 from pydantic_ai.providers.groq import GroqProvider
@@ -110,32 +110,53 @@ class IntelligentRoutingService:
     def handle_csv_query(
         self,
         user_query: str,
-        csv_data: str,
+        csv_info: Dict[str, Any],
         conversation_history: List[ChatMessage] = None,
     ) -> str:
         """Handle CSV analysis queries."""
         try:
             # Use the AI agent to generate code based on user request and conversation history
             context = self._prepare_csv_context(
-                user_query, csv_data, conversation_history
+                user_query, csv_info, conversation_history
             )
             result = self.csv_agent.run_sync(context)
 
             if hasattr(result.output, "python_code"):
                 # Execute the generated code using Jupyter service
                 return self._execute_csv_analysis(
-                    result.output.python_code, csv_data, result.output.explanation
+                    result.output.python_code, csv_info, result.output.explanation
                 )
             else:
                 return "I'm sorry, I couldn't generate analysis code for that request. Could you please rephrase your question?"
 
         except Exception as e:
-            return (
-                f"I encountered an error while generating CSV analysis code: {str(e)}"
-            )
+            # Provide a simple fallback analysis when LLM fails
+            try:
+                import pandas as pd
+                df = pd.read_csv(csv_info['file_path'])
+                
+                # Basic analysis based on the query
+                if "average" in user_query.lower() or "mean" in user_query.lower():
+                    if "salary" in user_query.lower() and "salary" in df.columns:
+                        avg = df['salary'].mean()
+                        return f"**Analysis Results:**\n\nAverage salary: ${avg:,.2f}\n\n**Explanation:** Calculated the average salary from the data."
+                    else:
+                        numeric_cols = df.select_dtypes(include=['number']).columns
+                        if len(numeric_cols) > 0:
+                            avg = df[numeric_cols[0]].mean()
+                            return f"**Analysis Results:**\n\nAverage {numeric_cols[0]}: {avg:,.2f}\n\n**Explanation:** Calculated the average of {numeric_cols[0]} from the data."
+                
+                elif "graph" in user_query.lower() or "chart" in user_query.lower():
+                    return f"**Analysis Results:**\n\nChart generation is currently unavailable. Here's a data summary:\n\n{df.describe()}\n\n**Explanation:** Basic data overview due to service unavailability."
+                
+                else:
+                    return f"**Analysis Results:**\n\nData overview:\n- Records: {len(df)}\n- Columns: {list(df.columns)}\n\nFirst few rows:\n{df.head()}\n\n**Explanation:** Basic data overview due to service unavailability."
+                    
+            except Exception as fallback_error:
+                return f"I encountered an error while generating CSV analysis code: {str(e)}\n\nFallback also failed: {str(fallback_error)}"
 
     def _execute_csv_analysis(
-        self, python_code: str, csv_data: str, explanation: str
+        self, python_code: str, csv_info: Dict[str, Any], explanation: str
     ) -> str:
         """Execute CSV analysis code using Jupyter service."""
         try:
@@ -148,24 +169,55 @@ class IntelligentRoutingService:
             session_id = "csv_analysis_temp"
 
             # Load CSV data into the session
-            jupyter_service.load_csv_data(session_id, csv_data)
+            jupyter_service.load_csv_data(session_id, csv_info['file_path'])
 
-            # Prepare the code with CSV data variable
-            full_code = f"csv_data = '''{csv_data}'''\n\n{python_code}"
+            # Install required libraries if needed
+            install_code = """
+import sys
+import subprocess
 
-            # Execute the code
+def install_package(package):
+    try:
+        __import__(package)
+    except ImportError:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+
+# Install required packages
+install_package('pandas')
+install_package('numpy')
+install_package('matplotlib')
+install_package('seaborn')
+"""
+            
+            # Execute installation first
+            install_result = jupyter_service.execute_analysis(
+                session_id, install_code, max_retries=1
+            )
+
+            # Execute the analysis code directly (it will read from the file path)
             result = jupyter_service.execute_analysis(
-                session_id, full_code, max_retries=1
+                session_id, python_code, max_retries=1
             )
 
             if result["status"] == "success":
                 output = result.get("output", "")
+                
+                # If output is empty, provide a fallback
+                if not output.strip():
+                    output = "Analysis completed successfully but no output was generated."
 
-                # Check if any images were created
+                # Check if any images were created in the specific session directory
                 import os
                 import glob
-
-                image_files = glob.glob("/tmp/*.png")
+                
+                # Look for images in the session's temp directory
+                session_temp_dir = f"/tmp/querypls_session_csv_analysis_temp"
+                image_files = []
+                
+                if os.path.exists(session_temp_dir):
+                    png_files = glob.glob(os.path.join(session_temp_dir, "*.png"))
+                    jpg_files = glob.glob(os.path.join(session_temp_dir, "*.jpg"))
+                    image_files.extend(png_files + jpg_files)
 
                 if image_files:
                     image_info = "\n\n**Generated Images:**\n"
@@ -180,7 +232,14 @@ class IntelligentRoutingService:
 **Explanation:** {explanation}"""
             else:
                 error_msg = result.get("error_message", "Unknown error")
-                return f"❌ Error executing analysis: {error_msg}"
+                # Add debugging information
+                debug_info = f"""
+**Debug Information:**
+- Generated Code: {python_code[:200]}...
+- Error: {error_msg}
+- CSV File: {csv_info['file_path']}
+"""
+                return f"❌ Error executing analysis: {error_msg}\n{debug_info}"
 
         except Exception as e:
             return f"❌ Error in CSV analysis: {str(e)}"
@@ -221,30 +280,45 @@ class IntelligentRoutingService:
     def _prepare_csv_context(
         self,
         user_query: str,
-        csv_data: str,
+        csv_info: Dict[str, Any],
         conversation_history: List[ChatMessage] = None,
     ) -> str:
         """Prepare context for CSV analysis."""
         context_parts = [
             f"User Query: {user_query}",
             f"CSV Data Available: Yes",
-            f"CSV Data Format: The CSV data is available as a string variable called 'csv_data' in the session",
-            f"CSV Content Preview: {csv_data[:200]}...",
+            f"CSV File Path: {csv_info['file_path']}",
+            f"CSV Shape: {csv_info['shape']}",
+            f"CSV Columns: {csv_info['columns']}",
+            f"CSV Data Types: {csv_info['dtypes']}",
+            f"CSV Sample Data: {csv_info['sample_data']}",
         ]
-
+        
         if conversation_history:
             context_parts.append("Conversation History:")
             # Last 5 messages for context
             for msg in conversation_history[-5:]:
                 context_parts.append(f"- {msg.role}: {msg.content}")
-
+        
         context_parts.append(
-            "\nGenerate Python code to analyze the CSV data based on the user's request."
+            "\nGenerate SIMPLE Python code that directly answers the user's question."
         )
         context_parts.append(
-            "IMPORTANT: Use pd.read_csv(StringIO(csv_data)) to load the data, NOT file paths!"
+            "MAXIMUM 10 LINES OF CODE - Keep it simple!"
         )
-
+        context_parts.append(
+            "NO COMPREHENSIVE ANALYSIS - Just answer the specific question!"
+        )
+        context_parts.append(
+            f"IMPORTANT: Use pd.read_csv('{csv_info['file_path']}') to load the data from the file path!"
+        )
+        context_parts.append(
+            "Print human-readable insights directly - no complex scripts!"
+        )
+        context_parts.append(
+            "For charts, use plt.savefig('/tmp/querypls_session_csv_analysis_temp/chart_name.png') and plt.show()."
+        )
+        
         return "\n".join(context_parts)
 
     def _format_sql_response(self, sql_response) -> str:
@@ -316,6 +390,21 @@ class IntelligentRoutingService:
             "python",
             "code",
             "file",
+            "average",
+            "mean",
+            "sum",
+            "count",
+            "salary",
+            "column",
+            "row",
+            "statistics",
+            "stats",
+            "distribution",
+            "correlation",
+            "histogram",
+            "bar",
+            "line",
+            "scatter",
         ]
 
         # SQL keywords

@@ -20,9 +20,6 @@ from src.config.constants import (
     APP_INIT_ERROR,
     RESPONSE_GENERATION_ERROR,
     MESSAGE_LOAD_ERROR,
-    MADE_WITH_LOVE,
-    SESSIONS_SECTION,
-    NEW_SESSION_BUTTON,
 )
 from src.frontend.frontend import display_logo_and_heading, display_welcome_message
 from src.backend.backend import (
@@ -35,7 +32,6 @@ import sys
 import os
 import pandas as pd
 
-# Add the project root to Python path
 project_root = os.path.dirname(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 )
@@ -70,9 +66,68 @@ def display_messages(session_id: str):
         conversation = orchestrator.get_conversation_history(session_id)
         for message in conversation.messages:
             with st.chat_message(message.role):
-                st.markdown(message.content)
+                display_message_with_images(message.content)
     except Exception as e:
         st.error(MESSAGE_LOAD_ERROR.format(error=str(e)))
+
+
+def display_message_with_images(content: str):
+    """Display message content and handle CSV analysis responses with images."""
+    # Check if this is a CSV analysis response with images
+    if "**Generated Images:**" in content:
+        # Split the content into text and image sections
+        parts = content.split("**Generated Images:**")
+        text_content = parts[0].strip()
+        
+        # Display the text content
+        st.markdown(text_content)
+        
+        # Handle images if present
+        if len(parts) > 1:
+            image_section = parts[1].strip()
+            image_lines = [line.strip() for line in image_section.split('\n') if line.strip().startswith('- ')]
+            
+            if image_lines:
+                st.markdown("**Generated Images:**")
+                
+                # Look for images in the specific temp directory
+                import os
+                import glob
+                
+                temp_dir = "/tmp/querypls_session_csv_analysis_temp"
+                if os.path.exists(temp_dir):
+                    for line in image_lines:
+                        # Extract filename from the line (e.g., "- department_chart.png")
+                        filename = line.replace('- ', '').strip()
+                        image_path = os.path.join(temp_dir, filename)
+                        
+                        if os.path.exists(image_path):
+                            try:
+                                st.image(image_path, caption=filename, use_column_width=True)
+                            except Exception as e:
+                                st.error(f"Error displaying image {filename}: {str(e)}")
+                        else:
+                            st.warning(f"Image not found: {filename}")
+    else:
+        # Regular message content
+        st.markdown(content)
+
+
+def cleanup_old_images():
+    """Clean up old CSV analysis images."""
+    import os
+    import glob
+    
+    temp_dir = "/tmp/querypls_session_csv_analysis_temp"
+    if os.path.exists(temp_dir):
+        try:
+            # Remove old images
+            for img_file in glob.glob(os.path.join(temp_dir, "*.png")):
+                os.remove(img_file)
+            for img_file in glob.glob(os.path.join(temp_dir, "*.jpg")):
+                os.remove(img_file)
+        except Exception as e:
+            print(f"Warning: Could not cleanup old images: {e}")
 
 
 def upload_csv_file():
@@ -128,6 +183,9 @@ def main():
         st.markdown("### Sessions")
         if st.button("➕ New Session"):
             try:
+                # Clean up old images when creating new session
+                cleanup_old_images()
+                
                 sessions = orchestrator.list_sessions()
                 new_session = orchestrator.create_new_session(
                     NewChatRequest(session_name=f"Chat {len(sessions) + 1}")
@@ -143,6 +201,9 @@ def main():
         if csv_content:
             if st.button(LOAD_CSV_BUTTON):
                 try:
+                    # Clean up old images before loading new CSV
+                    cleanup_old_images()
+                    
                     result = orchestrator.load_csv_data(
                         current_session_id, csv_content)
                     if result["status"] == "success":
@@ -169,7 +230,7 @@ def main():
                 st.markdown(prompt)
 
             with st.chat_message("assistant"):
-                st.markdown(response.content)
+                display_message_with_images(response.content)
 
         except Exception as e:
             st.error(RESPONSE_GENERATION_ERROR.format(error=str(e)))
