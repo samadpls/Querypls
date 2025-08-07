@@ -15,7 +15,9 @@ def display_welcome_message():
 
 def handle_new_chat(max_chat_histories=5):
     st.markdown(f"#### Remaining Chat Histories: `{max_chat_histories}`")
-    st.markdown("You can create multiple chat sessions. Each session can contain unlimited messages.")
+    st.markdown(
+        "You can create multiple chat sessions. Each session can contain unlimited messages."
+    )
 
     if st.button("➕ New chat"):
         st.rerun()

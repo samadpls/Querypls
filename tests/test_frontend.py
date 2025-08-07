@@ -46,9 +46,7 @@ def test_display_welcome_message(mock_st):
     with patch.object(st, "markdown") as mock_markdown:
         with patch.object(st, "session_state", MockSessionState()):
             initialize_session_state(
-                messages=[
-                    {"role": "assistant", "content": "How may I help you?"}
-                ]
+                messages=[{"role": "assistant", "content": "How may I help you?"}]
             )
             display_welcome_message()
         mock_markdown.assert_called_once_with(
@@ -63,13 +61,9 @@ def test_handle_new_chat(mock_db, mock_st):
             st, "button"
         ) as mock_button:
             with patch.object(st, "session_state", MockSessionState()):
-                initialize_session_state(
-                    messages=[], user_email="test@example.com"
-                )
+                initialize_session_state(messages=[], user_email="test@example.com")
                 handle_new_chat(mock_db, max_chat_histories=5)
-            mock_markdown.assert_called_once_with(
-                " #### Remaining Chats: `5/5`"
-            )
+            mock_markdown.assert_called_once_with(" #### Remaining Chats: `5/5`")
             mock_button.assert_called_once_with("➕ New chat")
 
 

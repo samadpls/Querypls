@@ -14,13 +14,9 @@ from src.auth import (
 async def test_get_authorization_url():
     client = GoogleOAuth2("client_id", "client_secret")
     redirect_uri = "http://example.com/callback"
-    with patch.object(
-        client, "get_authorization_url", new=AsyncMock()
-    ) as mock_method:
+    with patch.object(client, "get_authorization_url", new=AsyncMock()) as mock_method:
         await get_authorization_url(client, redirect_uri)
-        mock_method.assert_called_once_with(
-            redirect_uri, scope=["profile", "email"]
-        )
+        mock_method.assert_called_once_with(redirect_uri, scope=["profile", "email"])
 
 
 @pytest.mark.asyncio
@@ -28,9 +24,7 @@ async def test_get_access_token():
     client = GoogleOAuth2("client_id", "client_secret")
     redirect_uri = "http://example.com/callback"
     code = "code"
-    with patch.object(
-        client, "get_access_token", new=AsyncMock()
-    ) as mock_method:
+    with patch.object(client, "get_access_token", new=AsyncMock()) as mock_method:
         await get_access_token(client, redirect_uri, code)
         mock_method.assert_called_once_with(code, redirect_uri)
 
