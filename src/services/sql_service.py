@@ -52,8 +52,7 @@ class SQLGenerationService:
     def generate_sql(self, request: SQLGenerationRequest) -> ChatResponse:
         try:
             formatted_history = self.format_chat_history(request.conversation_history)
-            prompt = f"Previous conversation: {formatted_history}\nCurrent question: {
-                request.user_query}"
+            prompt = f"Previous conversation: {formatted_history}\nCurrent question: {request.user_query}"
 
             result = self.agent.run_sync(prompt)
 
@@ -69,9 +68,7 @@ class SQLGenerationService:
                 warnings=result.output.warnings,
             )
 
-            formatted_content = f"```sql\n{
-                sql_response.sql_query}\n```\n\n**Explanation:** {
-                sql_response.explanation}"
+            formatted_content = f"```sql\n{sql_response.sql_query}\n```\n\n**Explanation:** {sql_response.explanation}"
 
             session_id = "default"
             if request.conversation_history:

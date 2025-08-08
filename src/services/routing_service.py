@@ -76,8 +76,8 @@ class IntelligentRoutingService:
 
         except Exception as e:
             print(f"Routing failed with error: {e}")
-            # Use simple keyword-based routing as fallback
-            return self._keyword_based_routing(user_query, csv_loaded)
+            # Use intelligent fallback routing
+            return self._fallback_routing(user_query, csv_loaded)
 
     def handle_conversation_query(self, user_query: str) -> str:
         """Handle conversational queries."""
@@ -111,7 +111,7 @@ class IntelligentRoutingService:
     def handle_csv_query(
         self,
         user_query: str,
-        csv_info: Dict[str, Any],
+        csv_info: Optional[Dict[str, Any]] = None,
         conversation_history: Optional[List[ChatMessage]] = None,
     ) -> str:
         """Handle CSV analysis queries."""
@@ -135,7 +135,7 @@ class IntelligentRoutingService:
             return WORST_CASE_SCENARIO
 
     def _execute_csv_analysis(
-        self, python_code: str, csv_info: Dict[str, Any], explanation: str
+        self, python_code: str, csv_info: Optional[Dict[str, Any]], explanation: str
     ) -> str:
         """Execute CSV analysis code using Jupyter service with error fixing retry loop."""
         try:
@@ -147,8 +147,9 @@ class IntelligentRoutingService:
             # Create a temporary session for this analysis
             session_id = "csv_analysis_temp"
 
-            # Load CSV data into the session
-            jupyter_service.load_csv_data(session_id, csv_info["file_path"])
+            # Load CSV data into the session if available
+            if csv_info and csv_info.get("file_path"):
+                jupyter_service.load_csv_data(session_id, csv_info["file_path"])
 
             # Install required libraries if needed
             install_code = """
@@ -219,7 +220,7 @@ install_package('seaborn')
                     if attempt < max_retries - 1:  # Not the last attempt
                         # Send error to LLM to fix the code
                         fixed_code = self._fix_python_code(
-                            current_code, error_msg, csv_info
+                            current_code, error_msg, csv_info or {}
                         )
                         if fixed_code:
                             current_code = fixed_code
@@ -290,19 +291,29 @@ install_package('seaborn')
     def _prepare_csv_context(
         self,
         user_query: str,
-        csv_info: Dict[str, Any],
+        csv_info: Optional[Dict[str, Any]] = None,
         conversation_history: Optional[List[ChatMessage]] = None,
     ) -> str:
         """Prepare context for CSV analysis."""
         context_parts = [
             f"User Query: {user_query}",
-            f"CSV Data Available: Yes",
-            f"CSV File Path: {csv_info['file_path']}",
-            f"CSV Shape: {csv_info['shape']}",
-            f"CSV Columns: {csv_info['columns']}",
-            f"CSV Data Types: {csv_info['dtypes']}",
-            f"CSV Sample Data: {csv_info['sample_data']}",
         ]
+
+        # Check if CSV data is available
+        if csv_info and csv_info.get('file_path'):
+            context_parts.extend([
+                f"CSV Data Available: Yes",
+                f"CSV File Path: {csv_info['file_path']}",
+                f"CSV Shape: {csv_info['shape']}",
+                f"CSV Columns: {csv_info['columns']}",
+                f"CSV Data Types: {csv_info['dtypes']}",
+                f"CSV Sample Data: {csv_info['sample_data']}",
+            ])
+        else:
+            context_parts.extend([
+                f"CSV Data Available: No - User provided data in query",
+                "SPECIAL INSTRUCTIONS: Analyze the user query and extract any relevant data for analysis"
+            ])
 
         if conversation_history:
             context_parts.append("Conversation History:")
@@ -317,17 +328,29 @@ install_package('seaborn')
         context_parts.append(
             "NO FUNCTIONS OR CLASSES - Just direct code that prints results!"
         )
+        
+        if csv_info and csv_info.get('file_path'):
+            context_parts.append(
+                f"IMPORTANT: Use pd.read_csv('{csv_info['file_path']}') to load the data from the file path!"
+            )
+        else:
+            context_parts.append(
+                "IMPORTANT: Analyze the user query and extract any relevant data for analysis!"
+            )
+            context_parts.append(
+                "Use your intelligence to understand what the user wants and create appropriate analysis!"
+            )
+        
         context_parts.append(
-            f"IMPORTANT: Use pd.read_csv('{csv_info['file_path']}') to load the data from the file path!"
-        )
-        context_parts.append(
-            "Print human-readable results like 'Average price: $123.45' - NO technical output!"
+            "Print human-readable results that directly answer the user's question - NO technical output!"
         )
         context_parts.append(
             "For charts, use plt.savefig('/tmp/querypls_session_csv_analysis_temp/chart.png') and plt.show()."
         )
 
         return "\n".join(context_parts)
+
+
 
     def _prepare_code_fix_context(
         self, original_code: str, error_message: str, csv_info: Dict[str, Any]
@@ -376,68 +399,6 @@ install_package('seaborn')
 
         return "\n\n".join(response_parts)
 
-    def _keyword_based_routing(self, user_query: str, csv_loaded: bool) -> RoutingDecision:
-        """Keyword-based routing when LLM routing fails."""
-        query_lower = user_query.lower()
-        
-        # CSV Agent keywords
-        csv_keywords = [
-            "csv", "analyze", "chart", "plot", "graph", "average", "mean", "sum", 
-            "count", "max", "min", "statistics", "data", "visualization", "top", 
-            "bottom", "highest", "lowest", "distribution", "correlation"
-        ]
-        
-        # SQL Agent keywords  
-        sql_keywords = [
-            "select", "insert", "update", "delete", "sql", "query", "table", 
-            "database", "users", "customers", "orders", "products", "where", 
-            "join", "group by", "order by", "from"
-        ]
-        
-        # Conversation Agent keywords
-        conversation_keywords = [
-            "hello", "hi", "hey", "how are you", "what can you do", "help", 
-            "thanks", "thank you", "goodbye", "bye", "good morning", "good evening"
-        ]
-        
-        # Check for CSV analysis (prioritize if CSV is loaded)
-        if csv_loaded and any(keyword in query_lower for keyword in csv_keywords):
-            return RoutingDecision(
-                agent="CSV_AGENT",
-                confidence=0.8,
-                reasoning="Keyword-based routing detected CSV analysis request"
-            )
-        
-        # Check for SQL keywords
-        if any(keyword in query_lower for keyword in sql_keywords):
-            return RoutingDecision(
-                agent="SQL_AGENT", 
-                confidence=0.8,
-                reasoning="Keyword-based routing detected SQL request"
-            )
-        
-        # Check for conversation keywords
-        if any(keyword in query_lower for keyword in conversation_keywords):
-            return RoutingDecision(
-                agent="CONVERSATION_AGENT",
-                confidence=0.9,
-                reasoning="Keyword-based routing detected conversation request"
-            )
-        
-        # Default based on context
-        if csv_loaded:
-            return RoutingDecision(
-                agent="CSV_AGENT",
-                confidence=0.6, 
-                reasoning="CSV loaded, defaulting to CSV analysis"
-            )
-        else:
-            return RoutingDecision(
-                agent="CONVERSATION_AGENT",
-                confidence=0.5,
-                reasoning="No clear intent detected, defaulting to conversation"
-            )
-
     def _fallback_routing(self, user_query: str, csv_loaded: bool) -> RoutingDecision:
         """Fallback routing when LLM routing fails - let LLM decide, not hardcoded keywords."""
         # Default to conversation - let the LLM handle all decisions
@@ -450,3 +411,5 @@ install_package('seaborn')
     def _get_fallback_conversation_response(self, user_query: str) -> str:
         """Get fallback conversation response when LLM fails."""
         return WORST_CASE_SCENARIO
+
+

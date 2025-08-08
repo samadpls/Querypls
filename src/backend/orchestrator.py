@@ -173,12 +173,16 @@ class BackendOrchestrator:
                 user_query, session.messages
             )
         elif routing_decision.agent == "CSV_AGENT":
+            # Handle CSV analysis - can work with uploaded CSV or product lists from query
             if session.csv_data and session.csv_info:
                 response_content = self.routing_service.handle_csv_query(
                     user_query, session.csv_info, session.messages
                 )
             else:
-                response_content = "I don't see any CSV data loaded. Please upload a CSV file first to analyze it."
+                # Handle product analysis from query without uploaded CSV
+                response_content = self.routing_service.handle_csv_query(
+                    user_query, None, session.messages
+                )
         else:
             # Fallback to conversation
             response_content = self.routing_service.handle_conversation_query(

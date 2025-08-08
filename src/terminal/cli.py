@@ -23,9 +23,7 @@ class QueryplsCLI:
         session_info = self.orchestrator.create_new_session(request)
         self.current_session_id = session_info.session_id
         print(
-            f"""Session created: {
-                session_info.session_name} (ID: {
-                session_info.session_id})"""
+            f"Session created: {session_info.session_name} (ID: {session_info.session_id})"
         )
         return session_info.session_id
 

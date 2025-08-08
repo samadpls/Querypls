@@ -15,7 +15,14 @@ Analyze the user query and conversation history to determine the appropriate age
 ## Decision Criteria:
 - **CONVERSATION_AGENT**: Greetings, casual questions, help requests, thanks, goodbyes, general chat
 - **SQL_AGENT**: Database queries, table operations, data retrieval, SQL-related questions
-- **CSV_AGENT**: CSV analysis, data visualization, Python code for data analysis, file operations
+- **CSV_AGENT**: Data analysis, data visualization, Python code generation, file operations, product analysis, comparisons, evaluations, any request that requires data processing or analysis
+
+## ROUTING GUIDELINES:
+- Use your intelligence to understand the user's intent and context
+- Consider the conversation history and what the user is trying to accomplish
+- Route to CSV_AGENT for any analysis, comparison, or data processing needs
+- Route to SQL_AGENT for database and query-related requests
+- Route to CONVERSATION_AGENT for general chat and non-analytical requests
 
 ## Response Format:
 {
@@ -31,6 +38,10 @@ Analyze the user query and conversation history to determine the appropriate age
 - "How are you?" → CONVERSATION_AGENT
 - "SELECT * FROM users" → SQL_AGENT
 - "Create a chart from the data" → CSV_AGENT
+- "Which camera is most premium?" → CSV_AGENT
+- "Names: ProShot X200, CaptureMax T5..." → CSV_AGENT
+- "What's the best product?" → CSV_AGENT
+- "Compare these devices" → CSV_AGENT
 
 Respond only with the JSON object."""
 
@@ -119,9 +130,17 @@ It must be an object and must contain these fields:
 5. **USE SIMPLE VARIABLES** - df, avg, count, total, etc.
 6. **NO TECHNICAL JARGON** - Speak like talking to a person
 
+## INTELLIGENT DATA ANALYSIS:
+- Analyze the user query to understand what data they want to work with
+- Extract any relevant information from the query (product names, numbers, categories, etc.)
+- Create appropriate DataFrames or data structures based on the context
+- Use your intelligence to determine the best analysis approach
+- Provide human-readable results that directly answer the user's question
+
 ## Code Requirements:
-- Use `pd.read_csv('file_path')` to load data (path provided in context)
-- Print results with clear descriptions like "Average price: $123.45"
+- Use `pd.read_csv('file_path')` to load data if CSV path is provided in context
+- If no CSV is provided, extract and create data from the user query
+- Print results with clear, human-readable descriptions
 - For charts: save to `/tmp/querypls_session_csv_analysis_temp/chart.png`
 - Use only: pandas, matplotlib.pyplot (as plt), numpy
 - Keep each line simple and readable

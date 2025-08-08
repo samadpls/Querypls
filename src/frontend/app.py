@@ -2,6 +2,12 @@
 Main Streamlit application for Querypls.
 """
 
+import sys
+import os
+
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, project_root)
+
 from src.schemas.requests import NewChatRequest
 from src.config.constants import (
     CSV_ANALYSIS_SECTION,
@@ -28,14 +34,7 @@ from src.backend.backend import (
 )
 from src.backend.orchestrator import BackendOrchestrator
 import streamlit as st
-import sys
-import os
 import pandas as pd
-
-project_root = os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-)
-sys.path.insert(0, project_root)
 
 
 def initialize_orchestrator():
